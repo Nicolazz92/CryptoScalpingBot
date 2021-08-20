@@ -1,5 +1,6 @@
 package com.binance.bot.investing_com.prediction;
 
+import com.binance.bot.binance.Coins;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,9 +13,9 @@ import java.util.Optional;
 
 public class PredictionProviderService {
 
-    public Optional<EnumMap<PredictionPeriods, PredictionCases>> getPredictions(final String url) {
+    public Optional<EnumMap<PredictionPeriods, PredictionCases>> getPredictions(Coins coin) {
         try {
-            Document document = getDocument(url);
+            Document document = getDocument(coin.getUrl());
             Elements classLeftElements = getElements(document);
             EnumMap<PredictionPeriods, PredictionCases> predictions = fillPredictionMap(classLeftElements);
             predictions.forEach((key, val) -> System.out.println(key + " - " + val));
