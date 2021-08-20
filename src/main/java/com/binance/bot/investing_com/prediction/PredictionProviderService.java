@@ -22,7 +22,7 @@ public class PredictionProviderService {
 
             return Optional.of(predictions);
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return Optional.empty();
