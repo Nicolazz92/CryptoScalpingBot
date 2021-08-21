@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
+import com.binance.api.client.exception.BinanceApiException;
 import com.binance.bot.binance.Coins;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public class DataProvider {
 
-    public Optional<OrderBookEntry> getPrice(Coins coin) {
+    public Optional<OrderBookEntry> getPrice(Coins coin) throws BinanceApiException {
         BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance();
         BinanceApiRestClient client = factory.newRestClient();
 
