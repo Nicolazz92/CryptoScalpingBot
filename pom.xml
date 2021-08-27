@@ -17,6 +17,7 @@
 
     <modules>
         <module>binance-java-api</module>
+        <module>investing-com-scrapping</module>
     </modules>
 
     <properties>
@@ -65,12 +66,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.binance.api</groupId>
-            <artifactId>binance-api-client</artifactId>
-            <version>${binance-api-client.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -85,6 +80,19 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.binance.bot.investing_com.prediction.PredictionTest</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
         </plugins>

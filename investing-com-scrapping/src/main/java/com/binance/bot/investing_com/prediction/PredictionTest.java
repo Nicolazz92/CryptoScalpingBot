@@ -1,12 +1,8 @@
-package com.binance.bot;
+package com.binance.bot.investing_com.prediction;
 
 import com.binance.api.client.domain.market.OrderBookEntry;
 import com.binance.bot.binance.services.DataProvider;
-import com.binance.bot.investing_com.prediction.PredictionCases;
-import com.binance.bot.investing_com.prediction.PredictionPeriods;
-import com.binance.bot.investing_com.prediction.PredictionProviderService;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.EnumMap;
@@ -19,8 +15,11 @@ import static com.binance.bot.investing_com.prediction.PredictionPeriods.FIVE_MI
 
 public class PredictionTest {
 
-    @Test
-    public void test() {
+    public static void main(String[] args) {
+        test();
+    }
+
+    public static void test() {
         Map<Boolean, Integer> results = new HashMap<>();
         results.put(Boolean.TRUE, 0);
         results.put(Boolean.FALSE, 0);
@@ -76,13 +75,15 @@ public class PredictionTest {
                 }
                 System.out.println("30 seconds sleeping...");
                 Thread.sleep(1000 * 30);
-            } catch (RuntimeException | InterruptedException e) {
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
             }
         }
     }
 
-    private Integer put(Map<Boolean, Integer> results, Boolean aTrue) {
+    private static Integer put(Map<Boolean, Integer> results, Boolean aTrue) {
         return results.put(aTrue, results.get(aTrue) + 1);
     }
 }
