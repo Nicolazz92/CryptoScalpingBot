@@ -1,0 +1,148 @@
+digitalArchitecture:
+  - kind: "System"
+    name: "СУДИР"
+    yamlId: "qq"
+    parentYamlId: null
+    earepoCode: "EAR.AS.80022"
+    systemGuid: "qq"
+    arisCode: "T01"
+    fullName: "Система управления доступом к информационным ресурсам"
+    nickname: "СУД-ИР"
+    description: null
+    blockId: 13
+    cloudReady: null
+    platformReady: null
+    targetArchDiagram: null
+    releaseDate: null
+    serviceManagerId: "CI00144224"
+    rsaId: "11731"
+    status: "EXPLOIT"
+    statusC3: "UNKNOWN"
+    centralizationLevel: "SBERBANK"
+    criticality: "MISSION_CRITICAL"
+    targetStatus: "TARGET_NON_PLATFORM"
+    targetReadiness: "CHOSEN_INTRODUCED_PARTIALLY"
+    systemType: "AS"
+    nicknameEng: ""
+    shortDescription: "СУДИР предназначена для автоматизации следующих функций:\n- а\
+    утентификация и первичная авторизация пользователя при доступе к автоматизиров\
+    анной системе (включая проксирование пользовательской сессии);\n- централизова\
+    нное и унифицированное управление пользовательскими учеными записями в различн\
+    ых автоматизированных системах Банка (включая назначение / отзыв полномочий)"
+    objectTypeKE: null
+    functionality: null
+    dateDecommissioning: null
+    dateProhibitionImprovements: null
+    dateLastChange: 1602252479.000000000
+    platform: null
+    integration: false
+    receivedDataConfLevel: null
+    receivedDataIntegrityLevel: null
+    ciiCategory: "UNKNOWN"
+  - kind: "SubSystem"
+    name: "Система анализа и контроля соответствия"
+    yamlId: "ww"
+    parentYamlId: "qq"
+    earepoCode: "EAR.FP.82266"
+    systemGuid: "ww"
+    parentGuid: "qq"
+    arisCode: ""
+    fullName: "Система анализа и контроля соответствия РМ и текущих доступов"
+    nickname: "САКС"
+    description: null
+    blockId: null
+    cloudReady: null
+    platformReady: null
+    targetArchDiagram: null
+    releaseDate: null
+    serviceManagerId: ""
+    rsaId: ""
+    status: "PLANNED"
+    statusC3: "UNKNOWN"
+    centralizationLevel: "UNKNOWN"
+    criticality: "UNKNOWN"
+    targetStatus: "TARGET_NON_PLATFORM"
+    targetReadiness: "NEEDED_CHOICE_AND_INTRODUCE"
+    systemType: "FP"
+    nicknameEng: "SAKS"
+    shortDescription: ""
+    objectTypeKE: null
+    functionality: null
+    dateDecommissioning: null
+    dateProhibitionImprovements: null
+    dateLastChange: 1602253404.000000000
+    platform: null
+    integration: false
+    receivedDataConfLevel: "UNKNOWN"
+    receivedDataIntegrityLevel: "UNKNOWN"
+    ciiCategory: "UNKNOWN"
+  - kind: "Module"
+    name: "Модуль анализа"
+    yamlId: "ee"
+    parentYamlId: "ww"
+    earepoCode: "EAR.M.82787"
+    moduleGuid: "ee"
+    systemGuid: "ww"
+    status: "TRANSFORMATION"
+    functionality: "Проверка ролей и прав."
+    receivedDataIntegrityLevel: "UNKNOWN"
+    receivedDataConfLevel: "UNKNOWN"
+    shortName: "Модуль анализа"
+  - kind: "SubModule"
+    parentYamlLabel: "3401"
+    name: "Проверка ролей администраторов"
+    yamlId: "rr"
+    parentYamlId: "ee"
+    earepoCode: "EAR.SM.82788"
+    moduleGuid: "rr"
+    systemGuid: "ww"
+    status: "PLANNED"
+    functionality: "Проверка ролей администраторов"
+    receivedDataIntegrityLevel: "UNKNOWN"
+    receivedDataConfLevel: "UNKNOWN"
+    shortName: "Проверка ролей администраторов"
+    parentGuid: "ee"
+    parentCode: "EAR.M.82787"
+  - kind: "TechnologicalComponent"
+    name: "Компонент-проверки ролей-2"
+    yamlId: "tt"
+    parentYamlId: "rr"
+    earepoCode: "EAR.TC.82809"
+    systemGuid: "ww"
+    moduleGuid: "rr"
+    technologyCode: "IGNITE"
+    typeTechnologyLabel: null
+    destinationCode: null
+    destinationCodeLabel: null
+    typeCode: null
+    typeLabel: null
+    technologyKindCode: null
+    technologyKindLabel: null
+    languageCode: null
+    languageLabel: null
+    frameworkCode: null
+    frameworkLabel: null
+    functionality: ""
+    dateLastChange: null
+    authorLastChange: null
+    typeLastChange: null
+    containerName: null
+    isContainer: false
+  - kind: "IntegrationPoint"
+    name: "Повторная стандартизация данных (am-birthplace) - GetAPI"
+    yamlId: "ip.id:4796"
+#    parentYamlId: "qq"
+    earepoCode: "EAR.IP.83232"
+    asProviderId: 1264
+    type: "API"
+    approvalStatus: "APPROVED"
+    otherType: null
+    apiName: null
+    isLocal: true
+    isComplex: false
+    associatedPointId: null
+    apiId: null
+    apiVersionId: null
+    apiMethodId: null
+    externalSystems: []
+    versions: null

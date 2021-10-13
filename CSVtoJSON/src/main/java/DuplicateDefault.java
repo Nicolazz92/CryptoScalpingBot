@@ -10,6 +10,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Iterator;
 
+/**
+ * На основании выгрузки из таблицы конфлюенса генерит дефолтные картинки на каждый тип технологий
+ * https://confluence.sberbank.ru/pages/viewpage.action?pageId=5348365926
+ */
 public class DuplicateDefault {
 
     public static void main(String[] args) throws IOException {
