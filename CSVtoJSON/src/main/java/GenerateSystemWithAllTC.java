@@ -9,6 +9,7 @@ import org.simpleflatmapper.lightningcsv.CsvReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -30,7 +31,7 @@ public class GenerateSystemWithAllTC {
         List<Obj> digitalArchitecture = fillSystem(iterator, codeColumnId, nameColumnId, system);
 
         ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        objectMapper.writeValue(new File("allTechComponents.yaml"), new Wrapper(digitalArchitecture));
+        objectMapper.writeValue(new File("allTechComponents" + LocalDate.now() + ".yaml"), new Wrapper(digitalArchitecture));
     }
 
     private static List<Obj> fillSystem(Iterator<String[]> iterator, int codeColumnId, int nameColumnId, Obj system) {
