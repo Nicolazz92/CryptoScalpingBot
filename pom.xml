@@ -18,6 +18,7 @@
     <modules>
         <module>binance-java-api</module>
         <module>investing-com-scrapping</module>
+        <module>csv-processor</module>
     </modules>
 
     <properties>
