@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -23,7 +22,7 @@ public class CSVProcessingService {
             while ((line = csvReader.readNext()) != null) {
                 final MarketInterval marketInterval = new MarketInterval(line);
                 intervals.put(marketInterval.getOpenTime(), marketInterval);
-                System.out.println(marketInterval.getOpenTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+//                System.out.println(marketInterval.getOpenTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             }
         } catch (IOException | CsvValidationException e) {
             e.printStackTrace();

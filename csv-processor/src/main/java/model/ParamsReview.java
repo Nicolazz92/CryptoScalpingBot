@@ -1,23 +1,27 @@
 package model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
+@EqualsAndHashCode
 public class ParamsReview {
 
     /**
      * Дата, по которую (не включая) будет проводиться проверка
      */
-    private LocalDate endReviewDate;
+    private LocalDateTime endReviewLDT;
 
     /**
      * Срок в днях, на каком временном интервале будет проводиться проверка
      */
-    private Integer fullReviewInterval;
+    private Integer fullDayReviewInterval;
 
     /**
      * Минутный интервал, в который должно произойти изменение цены
@@ -34,12 +38,17 @@ public class ParamsReview {
      */
     private Double resultPercent;
 
-    public ParamsReview(LocalDate endReviewDate,
-                        Integer fullReviewInterval,
+    /**
+     * Подсчет количества сделок
+     */
+    private Integer dealsCount = 0;
+
+    public ParamsReview(LocalDateTime endReviewLDT,
+                        Integer fullDayReviewInterval,
                         Integer deltaMinuteInterval,
                         Double deltaPercent) {
-        this.endReviewDate = endReviewDate;
-        this.fullReviewInterval = fullReviewInterval;
+        this.endReviewLDT = endReviewLDT;
+        this.fullDayReviewInterval = fullDayReviewInterval;
         this.deltaMinuteInterval = deltaMinuteInterval;
         this.deltaPercent = deltaPercent;
     }
