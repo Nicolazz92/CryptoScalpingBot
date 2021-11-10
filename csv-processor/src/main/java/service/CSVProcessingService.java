@@ -1,3 +1,5 @@
+package service;
+
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import model.MarketInterval;
