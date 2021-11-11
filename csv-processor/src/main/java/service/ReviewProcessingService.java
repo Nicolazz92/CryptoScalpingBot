@@ -25,11 +25,11 @@ public class ReviewProcessingService {
 
             if (profitableBuy(paramsReview, hold, currentLDT, marketIntervals)) {
                 double oldPrice = getOldPrice(marketIntervals, paramsReview, currentLDT);
-                hold = new Hold(currentPrice, oldPrice, resultMoney);
+                hold = new Hold(currentPrice, oldPrice, minusFee(resultMoney));
             } else if (hold != null && currentPrice >= hold.getExpectingPrice()) {
                 hold.setSellingDate(currentLDT);
 //                System.out.println(hold);
-                resultMoney = hold.getMoneyAmount() / hold.getBuyingPrice() * currentPrice;
+                resultMoney = minusFee(hold.getMoneyAmount() / hold.getBuyingPrice() * currentPrice);
                 paramsReview.setDealsCount(paramsReview.getDealsCount() + 1);
                 hold = null;
             }
@@ -38,6 +38,10 @@ public class ReviewProcessingService {
         }
 
         return resultMoney;
+    }
+
+    private double minusFee(double resultMoney) {
+        return resultMoney / 1000 * 999;
     }
 
     private boolean profitableBuy(ParamsReview paramsReview,
