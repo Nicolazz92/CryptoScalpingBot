@@ -16,7 +16,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>binance-java-api</module>
         <module>investing-com-scrapping</module>
         <module>csv-processor</module>
     </modules>
@@ -66,6 +65,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.openhft.com.binance.api/binance-api-client -->
+        <dependency>
+            <groupId>net.openhft.com.binance.api</groupId>
+            <artifactId>binance-api-client</artifactId>
+            <version>2.17.1</version>
         </dependency>
     </dependencies>
 
