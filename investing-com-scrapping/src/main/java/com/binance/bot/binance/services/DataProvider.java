@@ -13,8 +13,10 @@ import java.util.Optional;
 
 public class DataProvider {
 
-    public Optional<OrderBookEntry> getPrice(Coins coin) throws BinanceApiException {
-        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance();
+    public Optional<OrderBookEntry> getPrice(boolean useTestnet, Coins coin) throws BinanceApiException {
+        BinanceApiClientFactory factory = useTestnet
+                ? BinanceApiClientFactory.newInstance(true, true)
+                : BinanceApiClientFactory.newInstance();
         BinanceApiRestClient client = factory.newRestClient();
 
         // Getting depth of a symbol

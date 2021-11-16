@@ -19,6 +19,7 @@
         <module>binance-api-client</module>
         <module>investing-com-scrapping</module>
         <module>csv-processor</module>
+        <module>trade-spot-scalper-strategy1</module>
     </modules>
 
     <properties>

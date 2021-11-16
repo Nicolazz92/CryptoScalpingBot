@@ -12,7 +12,7 @@ class DataProviderTest {
     @Test
     void getPrice() {
         DataProvider dataProvider = new DataProvider();
-        Optional<OrderBookEntry> price = dataProvider.getPrice(Coins.XRP_USD);
+        Optional<OrderBookEntry> price = dataProvider.getPrice(true, Coins.XRP_USD);
         Assertions.assertTrue(price.isPresent());
         System.out.println(price.get());
     }

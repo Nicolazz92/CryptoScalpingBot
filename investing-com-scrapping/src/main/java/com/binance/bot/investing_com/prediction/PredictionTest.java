@@ -27,7 +27,7 @@ public class PredictionTest {
         while (true) {
             try {
                 DataProvider dataProvider = new DataProvider();
-                Optional<OrderBookEntry> oldPriceOptional = dataProvider.getPrice(XRP_USD);
+                Optional<OrderBookEntry> oldPriceOptional = dataProvider.getPrice(false, XRP_USD);
 
                 PredictionProviderService predictionProviderService = new PredictionProviderService();
                 Optional<EnumMap<PredictionPeriods, PredictionCases>> predictions = predictionProviderService.getPredictions(XRP_USD);
@@ -41,7 +41,7 @@ public class PredictionTest {
                     System.out.println(predictionPeriod.getLabel() + " sleeping...");
                     Thread.sleep(predictionPeriod.getMilliseconds());
 
-                    Optional<OrderBookEntry> newPriceOptional = dataProvider.getPrice(XRP_USD);
+                    Optional<OrderBookEntry> newPriceOptional = dataProvider.getPrice(false, XRP_USD);
                     if (newPriceOptional.isPresent() && StringUtils.isNotBlank(newPriceOptional.get().getPrice())) {
                         double newPrice = Double.parseDouble(newPriceOptional.get().getPrice());
 
