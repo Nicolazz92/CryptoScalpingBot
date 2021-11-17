@@ -11,7 +11,7 @@ public class TestnetBinanceApiProvider extends AbstractBinanceApiProvider {
 
     public TestnetBinanceApiProvider(@Value("${apikey}") String apiKey,
                                      @Value("${secretkey}") String secret) {
-        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(apiKey, secret, true, true);
+        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(apiKey, secret, true, false);
         client = factory.newRestClient();
     }
 }
