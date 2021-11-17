@@ -60,7 +60,7 @@ public abstract class AbstractBinanceApiProvider {
                     "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
         } catch (TraderBotException e) {
             log.error(e.getMessage());
-            return assetBalanceToString(balances);
+            return StringUtils.join("\n", "Coin balance:", assetBalanceToString(balances));
         }
 
     }
