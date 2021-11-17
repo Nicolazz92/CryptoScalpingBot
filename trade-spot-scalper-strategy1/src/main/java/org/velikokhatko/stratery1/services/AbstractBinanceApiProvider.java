@@ -50,7 +50,8 @@ public abstract class AbstractBinanceApiProvider {
                 balanceUSD.setLocked(String.valueOf(lockedUSD));
                 resultAsUSD.add(balanceUSD);
             }
-            return assetBalanceToString(resultAsUSD)
+            return "USD balance: \n"
+                    + assetBalanceToString(resultAsUSD)
                     + "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD);
         } catch (TraderBotException e) {
             log.error(e.getMessage());
