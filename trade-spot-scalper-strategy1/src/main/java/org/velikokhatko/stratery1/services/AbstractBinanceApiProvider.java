@@ -5,12 +5,14 @@ import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.account.AssetBalance;
 import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.velikokhatko.stratery1.constants.Stablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotException;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.velikokhatko.stratery1.utils.Utils.assetBalanceToString;
 
@@ -21,7 +23,9 @@ public abstract class AbstractBinanceApiProvider {
 
     public String getBalance() {
         Account account = client.getAccount();
-        final List<AssetBalance> balances = account.getBalances();
+        final List<AssetBalance> balances = account.getBalances().stream()
+                .filter(balance -> Double.parseDouble(balance.getFree()) != 0 || Double.parseDouble(balance.getLocked()) != 0)
+                .collect(Collectors.toList());
 
         try {
             List<AssetBalance> resultAsUSD = new ArrayList<>();
@@ -50,9 +54,10 @@ public abstract class AbstractBinanceApiProvider {
                 balanceUSD.setLocked(String.valueOf(lockedUSD));
                 resultAsUSD.add(balanceUSD);
             }
-            return "USD balance: \n"
-                    + assetBalanceToString(resultAsUSD)
-                    + "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD);
+            return StringUtils.join("\n",
+                    "USD balance:",
+                    assetBalanceToString(resultAsUSD),
+                    "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
         } catch (TraderBotException e) {
             log.error(e.getMessage());
             return assetBalanceToString(balances);
