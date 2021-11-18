@@ -21,12 +21,6 @@ public class ExchangeInfoService {
     private AbstractBinanceApiProvider apiProvider;
     private UsdStablecoins bridgeCoin;
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void clearCache() {
-        cache.clear();
-        log.info(this.getClass().getName() + ": cache cleaned");
-    }
-
     public String getBaseAsset(String symbol) {
         if (!cache.containsKey(symbol)) {
             apiProvider.getExchangeInfo().getSymbols().stream()
@@ -39,6 +33,12 @@ public class ExchangeInfoService {
             log.error("Не получилось найти базовый актив для " + symbol);
         }
         return cache.get(symbol).baseAsset;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void clearCache() {
+        cache.clear();
+        log.info(this.getClass().getName() + ": cache cleaned");
     }
 
     @Autowired
