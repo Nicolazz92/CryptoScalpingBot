@@ -13,9 +13,11 @@ class TradeSpotScalperStrategy1ApplicationTests {
     @Autowired
     private AbstractBinanceApiProvider apiProvider;
 
+    @Autowired
+    private
+
     @Test
     void contextLoads() {
         System.out.println(apiProvider.getBalance());
     }
-
 }

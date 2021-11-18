@@ -7,8 +7,8 @@ public final class Prediction {
     public final boolean canBuy;
     public final LocalDateTime freshLimit;
 
-    public Prediction(boolean canBuy, int predictionDaysTTL) {
+    public Prediction(boolean canBuy, int predictionHoursTTL) {
         this.canBuy = canBuy;
-        freshLimit = LocalDateTime.now().plusDays(predictionDaysTTL);
+        freshLimit = LocalDateTime.now().plusHours(predictionHoursTTL);
     }
 }

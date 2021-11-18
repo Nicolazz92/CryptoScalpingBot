@@ -3,6 +3,7 @@ package org.velikokhatko.stratery1.services.api.provider;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.account.AssetBalance;
+import com.binance.api.client.domain.general.ExchangeInfo;
 import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +66,10 @@ public abstract class AbstractBinanceApiProvider {
             log.error(e.getMessage());
             return StringUtils.join("\n", "Coin balance:", assetBalanceListToString(balances));
         }
+    }
+
+    public ExchangeInfo getExchangeInfo() {
+        return client.getExchangeInfo();
     }
 
     @Value("${bridgeCoin}")
