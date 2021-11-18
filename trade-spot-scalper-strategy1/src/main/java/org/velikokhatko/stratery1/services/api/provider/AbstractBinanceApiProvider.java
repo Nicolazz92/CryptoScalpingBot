@@ -60,13 +60,13 @@ public abstract class AbstractBinanceApiProvider {
 
                 resultAsUSD.add(balanceUSD);
             }
-            return StringUtils.join("\n",
+            return StringUtils.joinWith("\n",
                     "USD balance:",
                     assetBalanceListToString(resultAsUSD),
-                    "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
+                    "Full USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
         } catch (TraderBotException e) {
             log.error(e.getMessage());
-            return StringUtils.join("\n", "Coin balance:", assetBalanceListToString(balances));
+            return StringUtils.joinWith("\n", "Coin balance:", assetBalanceListToString(balances));
         }
     }
 
