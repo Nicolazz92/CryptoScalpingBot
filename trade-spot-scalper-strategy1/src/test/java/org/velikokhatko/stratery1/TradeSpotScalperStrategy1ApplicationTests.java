@@ -24,7 +24,7 @@ class TradeSpotScalperStrategy1ApplicationTests {
 
     @Test
     void getPrediction() {
-        final boolean canBuy = predictionService.canBuy("DOGEBUSD");
+        final boolean canBuy = predictionService.canBuy("XRPBUSD");
         System.out.println(canBuy);
     }
 }
