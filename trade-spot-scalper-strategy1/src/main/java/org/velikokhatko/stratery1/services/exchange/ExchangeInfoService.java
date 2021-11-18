@@ -1,9 +1,13 @@
 package org.velikokhatko.stratery1.services.exchange;
 
+import com.binance.api.client.domain.general.SymbolInfo;
+import com.binance.api.client.domain.general.SymbolStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.velikokhatko.stratery1.constants.Stablecoins;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
 import java.util.HashMap;
@@ -13,8 +17,9 @@ import java.util.Map;
 @Service
 public class ExchangeInfoService {
 
-    private AbstractBinanceApiProvider apiProvider;
     private final Map<String, SymbolInfoShort> cache = new HashMap<>();
+    private AbstractBinanceApiProvider apiProvider;
+    private Stablecoins bridgeCoin;
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void clearCache() {
@@ -24,9 +29,10 @@ public class ExchangeInfoService {
 
     public String getBaseAsset(String symbol) {
         if (!cache.containsKey(symbol)) {
-            apiProvider.getExchangeInfo()
-                    .getSymbols()
-//                    .stream().peek(s -> System.out.println(s.toString()))
+            apiProvider.getExchangeInfo().getSymbols().stream()
+                    .filter(symbolInfo -> SymbolStatus.TRADING == symbolInfo.getStatus())
+                    .filter(SymbolInfo::isSpotTradingAllowed)
+                    .filter(symbolInfo -> bridgeCoin.name().equals(symbolInfo.getQuoteAsset()))
                     .forEach(s -> cache.put(s.getSymbol(), new SymbolInfoShort(s)));
         }
         if (!cache.containsKey(symbol)) {
@@ -38,5 +44,10 @@ public class ExchangeInfoService {
     @Autowired
     public void setApiProvider(AbstractBinanceApiProvider apiProvider) {
         this.apiProvider = apiProvider;
+    }
+
+    @Value("${bridgeCoin}")
+    public void setBridgeCoin(Stablecoins bridgeCoin) {
+        this.bridgeCoin = bridgeCoin;
     }
 }

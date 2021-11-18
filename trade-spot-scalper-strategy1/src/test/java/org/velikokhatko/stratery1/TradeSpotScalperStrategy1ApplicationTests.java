@@ -8,7 +8,8 @@ import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvid
 import org.velikokhatko.stratery1.services.predictions.PredictionService;
 
 @SpringBootTest
-@ActiveProfiles("production")
+//@ActiveProfiles("production")
+@ActiveProfiles("testnet")
 class TradeSpotScalperStrategy1ApplicationTests {
 
     @Autowired

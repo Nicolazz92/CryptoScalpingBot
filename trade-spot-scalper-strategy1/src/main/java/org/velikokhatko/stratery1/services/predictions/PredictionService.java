@@ -18,7 +18,7 @@ public class PredictionService {
 
     /**
      * Пример: predictionService.canBuy("XRPBUSD");
-     * Даёт прогноз по вылютной паре, основываясь на базовом активе (левом)
+     * Даёт прогноз по вылютной паре
      *
      * @param symbol валютная пара
      * @return можно ли покупать
