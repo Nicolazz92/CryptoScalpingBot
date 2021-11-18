@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services;
+package org.velikokhatko.stratery1.services.api.provider;
 
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.account.Account;
@@ -6,6 +6,7 @@ import com.binance.api.client.domain.account.AssetBalance;
 import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.velikokhatko.stratery1.constants.Stablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotException;
 
@@ -14,12 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.velikokhatko.stratery1.utils.Utils.assetBalanceToString;
+import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 
 @Slf4j
 public abstract class AbstractBinanceApiProvider {
 
     protected BinanceApiRestClient client;
+    private Stablecoins bridgeCoin;
 
     public String getBalance() {
         Account account = client.getAccount();
@@ -38,7 +40,8 @@ public abstract class AbstractBinanceApiProvider {
                 if (Stablecoins.contains(symbol)) {
                     usdPrice = 1d;
                 } else {
-                    String usdPriceString = allPrices.stream().filter(tickerPrice -> tickerPrice.getSymbol().equals(symbol + "BUSD"))
+                    String usdPriceString = allPrices.stream()
+                            .filter(tickerPrice -> tickerPrice.getSymbol().equals(symbol + Stablecoins.BUSD.name()))
                             .findAny().orElseThrow(() -> new TraderBotException("Не получилось узнать $ курс валюты " + symbol))
                             .getPrice();
                     usdPrice = Double.parseDouble(usdPriceString);
@@ -56,12 +59,16 @@ public abstract class AbstractBinanceApiProvider {
             }
             return StringUtils.join("\n",
                     "USD balance:",
-                    assetBalanceToString(resultAsUSD),
+                    assetBalanceListToString(resultAsUSD),
                     "\nFull USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
         } catch (TraderBotException e) {
             log.error(e.getMessage());
-            return StringUtils.join("\n", "Coin balance:", assetBalanceToString(balances));
+            return StringUtils.join("\n", "Coin balance:", assetBalanceListToString(balances));
         }
+    }
 
+    @Value("${bridgeCoin}")
+    public void setBridgeCoin(String bridgeCoin) {
+        this.bridgeCoin = Stablecoins.valueOf(bridgeCoin);
     }
 }

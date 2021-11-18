@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public final class Utils {
 
-    public static String assetBalanceToString(List<AssetBalance> balances) {
+    public static String assetBalanceListToString(List<AssetBalance> balances) {
         return balances.stream().map(AssetBalance::toString).collect(Collectors.joining("\n"));
     }
 }

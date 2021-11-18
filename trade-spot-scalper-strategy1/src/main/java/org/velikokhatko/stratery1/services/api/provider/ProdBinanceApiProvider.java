@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services;
+package org.velikokhatko.stratery1.services.api.provider;
 
 import com.binance.api.client.BinanceApiClientFactory;
 import org.springframework.beans.factory.annotation.Value;
