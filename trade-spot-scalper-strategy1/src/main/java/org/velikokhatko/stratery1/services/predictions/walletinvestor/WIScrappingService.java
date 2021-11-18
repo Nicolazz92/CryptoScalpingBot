@@ -3,6 +3,7 @@ package org.velikokhatko.stratery1.services.predictions.walletinvestor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.velikokhatko.stratery1.services.predictions.Prediction;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
 
 import java.io.IOException;
+import java.util.Collection;
 
 @Slf4j
 @Service
@@ -29,13 +31,12 @@ public class WIScrappingService implements ScrappingService {
 
         try {
             Document document = Jsoup.connect(FORECAST_URL + baseAsset).get();
-//            Elements classLeftElements = getElements(document);
-//            EnumMap<PredictionPeriods, PredictionCases> predictions = fillPredictionMap(classLeftElements);
-//            predictions.forEach((key, val) -> System.out.println(key + " - " + val));
-//
-//            return null;
-            final boolean b = false;
-            return new Prediction(b, predictionHoursTTL);
+            boolean isUp = document.getElementsByClass("table-cell-label kv-align-right kv-align-middle w0").stream()
+                    .filter(e -> "1".equals(e.attributes().get("data-col-seq")))
+                    .map(Element::children).flatMap(Collection::stream)
+                    .map(Element::children).flatMap(Collection::stream)
+                    .anyMatch(e -> e.hasClass("glyphicon-menu-up"));
+            return new Prediction(isUp, predictionHoursTTL);
         } catch (IOException e) {
             log.error(e.getMessage());
             return new Prediction(false, 1);

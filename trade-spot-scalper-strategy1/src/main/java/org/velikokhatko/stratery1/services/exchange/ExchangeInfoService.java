@@ -14,7 +14,7 @@ import java.util.Map;
 public class ExchangeInfoService {
 
     private AbstractBinanceApiProvider apiProvider;
-    public static Map<String, SymbolInfoShort> cache = new HashMap<>();
+    private final Map<String, SymbolInfoShort> cache = new HashMap<>();
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void clearCache() {
@@ -26,6 +26,7 @@ public class ExchangeInfoService {
         if (!cache.containsKey(symbol)) {
             apiProvider.getExchangeInfo()
                     .getSymbols()
+//                    .stream().peek(s -> System.out.println(s.toString()))
                     .forEach(s -> cache.put(s.getSymbol(), new SymbolInfoShort(s)));
         }
         if (!cache.containsKey(symbol)) {

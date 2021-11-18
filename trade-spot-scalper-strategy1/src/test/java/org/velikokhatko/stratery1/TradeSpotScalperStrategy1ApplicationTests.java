@@ -5,19 +5,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
+import org.velikokhatko.stratery1.services.predictions.PredictionService;
 
 @SpringBootTest
-@ActiveProfiles("testnet")
+@ActiveProfiles("production")
 class TradeSpotScalperStrategy1ApplicationTests {
 
     @Autowired
     private AbstractBinanceApiProvider apiProvider;
-
     @Autowired
-    private
+    private PredictionService predictionService;
+
 
     @Test
-    void contextLoads() {
+    void getBalanceTest() {
         System.out.println(apiProvider.getBalance());
+    }
+
+    @Test
+    void getPrediction() {
+        final boolean canBuy = predictionService.canBuy("DOGEBUSD");
+        System.out.println(canBuy);
     }
 }
