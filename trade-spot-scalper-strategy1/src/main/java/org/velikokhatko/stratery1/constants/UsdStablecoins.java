@@ -2,10 +2,10 @@ package org.velikokhatko.stratery1.constants;
 
 import java.util.Arrays;
 
-public enum Stablecoins {
+public enum UsdStablecoins {
     USDT, BUSD;
 
     public static boolean contains(String s) {
-        return Arrays.stream(values()).map(Stablecoins::name).anyMatch(s::equals);
+        return Arrays.stream(values()).map(UsdStablecoins::name).anyMatch(s::equals);
     }
 }

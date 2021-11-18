@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.velikokhatko.stratery1.constants.Stablecoins;
+import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ public class ExchangeInfoService {
 
     private final Map<String, SymbolInfoShort> cache = new HashMap<>();
     private AbstractBinanceApiProvider apiProvider;
-    private Stablecoins bridgeCoin;
+    private UsdStablecoins bridgeCoin;
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void clearCache() {
@@ -47,7 +47,7 @@ public class ExchangeInfoService {
     }
 
     @Value("${bridgeCoin}")
-    public void setBridgeCoin(Stablecoins bridgeCoin) {
+    public void setBridgeCoin(UsdStablecoins bridgeCoin) {
         this.bridgeCoin = bridgeCoin;
     }
 }

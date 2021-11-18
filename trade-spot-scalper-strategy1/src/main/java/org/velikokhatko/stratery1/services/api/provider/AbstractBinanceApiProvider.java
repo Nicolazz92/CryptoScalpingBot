@@ -8,7 +8,7 @@ import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.velikokhatko.stratery1.constants.Stablecoins;
+import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotException;
 
 import java.text.DecimalFormat;
@@ -22,7 +22,7 @@ import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 public abstract class AbstractBinanceApiProvider {
 
     protected BinanceApiRestClient client;
-    private Stablecoins bridgeCoin;
+    private UsdStablecoins bridgeCoin;
 
     public String getBalance() {
         Account account = client.getAccount();
@@ -36,26 +36,28 @@ public abstract class AbstractBinanceApiProvider {
 
             final List<TickerPrice> allPrices = client.getAllPrices();
             for (AssetBalance assetBalance : balances) {
-                final String symbol = assetBalance.getAsset();
+                final String asset = assetBalance.getAsset();
                 final double usdPrice;
-                if (Stablecoins.contains(symbol)) {
+                if (UsdStablecoins.contains(asset)) {
                     usdPrice = 1d;
                 } else {
                     String usdPriceString = allPrices.stream()
-                            .filter(tickerPrice -> tickerPrice.getSymbol().equals(symbol + Stablecoins.BUSD.name()))
-                            .findAny().orElseThrow(() -> new TraderBotException("Не получилось узнать $ курс валюты " + symbol))
+                            .filter(tickerPrice -> tickerPrice.getSymbol().equals(asset + bridgeCoin.name()))
+                            .findAny().orElseThrow(() -> new TraderBotException("Не получилось узнать $ курс валюты " + asset))
                             .getPrice();
                     usdPrice = Double.parseDouble(usdPriceString);
                 }
 
                 AssetBalance balanceUSD = new AssetBalance();
                 balanceUSD.setAsset(assetBalance.getAsset());
+
                 final double freeUSD = Double.parseDouble(assetBalance.getFree()) * usdPrice;
                 fullAmountUSD += freeUSD;
                 balanceUSD.setFree(String.valueOf(freeUSD));
                 final double lockedUSD = Double.parseDouble(assetBalance.getLocked()) * usdPrice;
                 fullAmountUSD += lockedUSD;
                 balanceUSD.setLocked(String.valueOf(lockedUSD));
+
                 resultAsUSD.add(balanceUSD);
             }
             return StringUtils.join("\n",
@@ -74,6 +76,6 @@ public abstract class AbstractBinanceApiProvider {
 
     @Value("${bridgeCoin}")
     public void setBridgeCoin(String bridgeCoin) {
-        this.bridgeCoin = Stablecoins.valueOf(bridgeCoin);
+        this.bridgeCoin = UsdStablecoins.valueOf(bridgeCoin);
     }
 }
