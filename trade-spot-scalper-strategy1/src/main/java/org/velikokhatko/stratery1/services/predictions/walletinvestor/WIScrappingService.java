@@ -3,14 +3,18 @@ package org.velikokhatko.stratery1.services.predictions.walletinvestor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.velikokhatko.stratery1.exceptions.TraderBotException;
 import org.velikokhatko.stratery1.services.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.predictions.Prediction;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,14 +32,23 @@ public class WIScrappingService implements ScrappingService {
         }
 
         try {
-            Document document = Jsoup.connect(FORECAST_URL + baseAsset).get();
-            boolean isUp = document.getElementsByClass("table-cell-label kv-align-right kv-align-middle w0").stream()
+            final String url = FORECAST_URL + baseAsset;
+            Document document = Jsoup.connect(url).get();
+            final List<Element> elements = document
+                    .getElementsByClass("table-cell-label kv-align-right kv-align-middle w0").stream()
                     .filter(e -> "1".equals(e.attributes().get("data-col-seq")))
                     .flatMap(es -> es.children().stream())
-                    .flatMap(es -> es.children().stream())
-                    .anyMatch(e -> e.hasClass("glyphicon-menu-up"));
+                    .flatMap(es -> es.children().stream()).collect(Collectors.toList());
+            boolean isUp;
+            if (elements.stream().anyMatch(e -> e.hasClass("glyphicon-menu-up"))) {
+                isUp = true;
+            } else if (elements.stream().anyMatch(e -> e.hasClass("glyphicon-menu-down"))) {
+                isUp = false;
+            } else {
+                throw new TraderBotException("Не удалось спарсить " + url);
+            }
             return new Prediction(isUp, predictionHoursTTL);
-        } catch (IOException e) {
+        } catch (IOException | TraderBotException e) {
             log.error(e.getMessage());
             return new Prediction(false, 1);
         }

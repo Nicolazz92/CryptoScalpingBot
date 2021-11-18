@@ -16,12 +16,13 @@ public class PredictionService {
     private final Map<String, Prediction> cache = new HashMap<>();
     private ScrappingService scrappingService;
 
-    @Scheduled(cron = "0 0 12 1 * ?")
-    public void clearCache() {
-        cache.clear();
-        log.info(this.getClass().getName() + ": cache cleaned");
-    }
-
+    /**
+     * Пример: predictionService.canBuy("XRPBUSD");
+     * Даёт прогноз по вылютной паре, основываясь на базовом активе (левом)
+     *
+     * @param symbol валютная пара
+     * @return можно ли покупать
+     */
     public boolean canBuy(String symbol) {
         if (!cache.containsKey(symbol)
                 || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
@@ -29,6 +30,12 @@ public class PredictionService {
         }
 
         return cache.get(symbol).canBuy;
+    }
+
+    @Scheduled(cron = "0 0 12 1 * ?")
+    public void clearCache() {
+        cache.clear();
+        log.info(this.getClass().getName() + ": cache cleaned");
     }
 
     @Autowired

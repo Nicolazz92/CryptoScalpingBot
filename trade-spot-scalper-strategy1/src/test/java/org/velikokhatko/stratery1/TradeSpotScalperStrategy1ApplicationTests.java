@@ -16,7 +16,6 @@ class TradeSpotScalperStrategy1ApplicationTests {
     @Autowired
     private PredictionService predictionService;
 
-
     @Test
     void getBalanceTest() {
         System.out.println(apiProvider.getBalance());
