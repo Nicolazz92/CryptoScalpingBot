@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services.exchange;
+package org.velikokhatko.stratery1.services.api.exchange;
 
 import com.binance.api.client.domain.general.SymbolInfo;
 import com.binance.api.client.domain.general.SymbolStatus;

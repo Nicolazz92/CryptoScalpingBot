@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotException;
-import org.velikokhatko.stratery1.services.exchange.ExchangeInfoService;
+import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.predictions.Prediction;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
 
