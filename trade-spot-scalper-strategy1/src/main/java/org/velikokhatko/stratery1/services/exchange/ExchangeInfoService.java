@@ -33,7 +33,7 @@ public class ExchangeInfoService {
                     .filter(symbolInfo -> SymbolStatus.TRADING == symbolInfo.getStatus())
                     .filter(SymbolInfo::isSpotTradingAllowed)
                     .filter(symbolInfo -> bridgeCoin.name().equals(symbolInfo.getQuoteAsset()))
-                    .forEach(s -> cache.put(s.getSymbol(), new SymbolInfoShort(s)));
+                    .forEach(symbolInfo -> cache.put(symbolInfo.getSymbol(), new SymbolInfoShort(symbolInfo)));
         }
         if (!cache.containsKey(symbol)) {
             log.error("Не получилось найти базовый актив для " + symbol);
