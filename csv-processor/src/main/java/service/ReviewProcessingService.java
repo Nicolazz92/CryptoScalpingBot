@@ -40,6 +40,12 @@ public class ReviewProcessingService {
         return resultMoney;
     }
 
+    /**
+     * 0.1% - самый большой процент
+     *
+     * @param resultMoney до уплаты комиссии
+     * @return после уплаты комиссии
+     */
     private double minusFee(double resultMoney) {
         return resultMoney / 1000 * 999;
     }
