@@ -17,7 +17,6 @@ public class Main {
     public static void main(String[] args) {
         final String fileName = "FTTBNB-1m-2021-06.csv";
         final Map<LocalDateTime, MarketInterval> marketIntervals = csvProcessingService.parseCsvIntervals(fileName);
-//        System.out.println(marketIntervals.size());
 
         final LocalDateTime endReviewLDT = marketIntervals.keySet().stream().max(LocalDateTime::compareTo).get();
         review(marketIntervals, endReviewLDT);
@@ -26,7 +25,7 @@ public class Main {
     private static void review(Map<LocalDateTime, MarketInterval> marketIntervals, LocalDateTime endReviewLDT) {
         List<ParamsReview> paramsReviews = new ArrayList<>();
         for (int minuteInterval = 5; minuteInterval <= 25; minuteInterval++) {
-            for (double deltaPercent = 1; deltaPercent <= 20; deltaPercent++) {
+            for (double deltaPercent = 3; deltaPercent <= 20; deltaPercent++) {
                 final ParamsReview paramsReview = new ParamsReview(endReviewLDT, 25, minuteInterval, deltaPercent);
                 final Double resultMoney = reviewProcessingService.process(START_MONEY, marketIntervals, paramsReview);
                 paramsReview.setResultPercent(resultMoney / START_MONEY * 100);

@@ -1,0 +1,78 @@
+package org.velikokhatko.stratery1.services.ratio;
+
+import org.springframework.stereotype.Service;
+import org.velikokhatko.stratery1.services.ratio.model.Hold;
+import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
+import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+
+import java.time.LocalDateTime;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Сервис оценивает конкретный набор ratioParams, сколько при идеальных условиях можно было бы получить дохода
+ * на последовательности цен marketIntervals.
+ */
+@Service
+public class SingleCoinRatioReviewService {
+
+    private static final double START_MONEY = 100d;
+
+    public Double process(Map<LocalDateTime, MarketInterval> marketIntervals,
+                          RatioParams ratioParams) {
+        double resultMoney = START_MONEY;
+        Hold hold = null;
+
+        Iterator<LocalDateTime> iterator = marketIntervals.keySet().stream().sorted().iterator();
+
+        while (iterator.hasNext()) {
+            final LocalDateTime currentLDT = iterator.next();
+            double currentPrice = marketIntervals.get(currentLDT).getOpen();
+
+            if (profitableBuy(ratioParams, hold, currentLDT, marketIntervals)) {
+                double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
+                hold = new Hold(currentPrice, oldPrice, minusFee(resultMoney));
+            } else if (hold != null && currentPrice >= hold.getExpectingPrice()) {
+                hold.setSellingDate(currentLDT);
+                resultMoney = minusFee(hold.getMoneyAmount() / hold.getBuyingPrice() * currentPrice);
+                ratioParams.setDealsCount(ratioParams.getDealsCount() + 1);
+                hold = null;
+            }
+        }
+
+        ratioParams.setResultPercent(resultMoney / START_MONEY * 100);
+
+        return resultMoney;
+    }
+
+    /**
+     * 0.1% - самая большая комиссия
+     *
+     * @param resultMoney до уплаты комиссии
+     * @return после уплаты комиссии
+     */
+    private double minusFee(double resultMoney) {
+        return resultMoney / 1000 * 999;
+    }
+
+    private boolean profitableBuy(RatioParams ratioParams,
+                                  Hold hold,
+                                  LocalDateTime currentLDT,
+                                  Map<LocalDateTime, MarketInterval> marketIntervals) {
+        if (hold != null) {
+            return false;
+        }
+        double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
+        return isPriceFallingDeepEnough(ratioParams, marketIntervals.get(currentLDT).getOpen(), oldPrice);
+    }
+
+    private double getOldPrice(Map<LocalDateTime, MarketInterval> marketIntervals, RatioParams ratioParams, LocalDateTime currentLDT) {
+        LocalDateTime oldLDT = currentLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
+        return marketIntervals.get(oldLDT).getOpen();
+    }
+
+    private boolean isPriceFallingDeepEnough(RatioParams ratioParams, double currentPrice, double oldPrice) {
+        return oldPrice > currentPrice
+                && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
+    }
+}

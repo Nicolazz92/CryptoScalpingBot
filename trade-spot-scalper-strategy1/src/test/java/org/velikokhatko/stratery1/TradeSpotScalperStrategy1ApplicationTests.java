@@ -2,15 +2,10 @@ package org.velikokhatko.stratery1;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 import org.velikokhatko.stratery1.services.predictions.PredictionService;
 
-@SpringBootTest
-//@ActiveProfiles("production")
-@ActiveProfiles("testnet")
-class TradeSpotScalperStrategy1ApplicationTests {
+class TradeSpotScalperStrategy1ApplicationTests extends BaseStrategy1Test {
 
     @Autowired
     private AbstractBinanceApiProvider apiProvider;

@@ -31,8 +31,8 @@ public class WIScrappingService implements ScrappingService {
             return new Prediction(false, 1);
         }
 
+        final String url = FORECAST_URL + baseAsset;
         try {
-            final String url = FORECAST_URL + baseAsset;
             Document document = Jsoup.connect(url).get();
             final List<Element> elements = document
                     .getElementsByClass("table-cell-label kv-align-right kv-align-middle w0").stream()
@@ -49,7 +49,7 @@ public class WIScrappingService implements ScrappingService {
             }
             return new Prediction(isUp, predictionHoursTTL);
         } catch (IOException | TraderBotException e) {
-            log.error(e.getMessage());
+            log.error("Ошибка при получении прогноза с {}", url, e);
             return new Prediction(false, 1);
         }
     }

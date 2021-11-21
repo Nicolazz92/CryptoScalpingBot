@@ -11,17 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class ParamsReview {
-
-    /**
-     * Дата, по которую (не включая) будет проводиться проверка
-     */
-    private LocalDateTime endReviewLDT;
-
-    /**
-     * Срок в днях, на каком временном интервале будет проводиться проверка
-     */
-    private Integer fullDayReviewInterval;
+public class RatioParams {
 
     /**
      * Минутный интервал, в который должно произойти изменение цены
@@ -43,13 +33,16 @@ public class ParamsReview {
      */
     private Integer dealsCount = 0;
 
-    public ParamsReview(LocalDateTime endReviewLDT,
-                        Integer fullDayReviewInterval,
-                        Integer deltaMinuteInterval,
-                        Double deltaPercent) {
-        this.endReviewLDT = endReviewLDT;
-        this.fullDayReviewInterval = fullDayReviewInterval;
+    /**
+     * В какой момент данные будут считаться устаревшими
+     */
+    private LocalDateTime freshLimit;
+
+    public RatioParams(Integer deltaMinuteInterval,
+                       Double deltaPercent,
+                       LocalDateTime freshLimit) {
         this.deltaMinuteInterval = deltaMinuteInterval;
         this.deltaPercent = deltaPercent;
+        this.freshLimit = freshLimit;
     }
 }

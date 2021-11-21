@@ -16,9 +16,9 @@ import java.util.zip.ZipInputStream;
 
 @Service
 @Slf4j
-public class CSVProcessingService {
+public class MarketingIntervalsObtainingService {
 
-    public Map<LocalDateTime, MarketInterval> parseCsvIntervals(List<String> urls) {
+    public Map<LocalDateTime, MarketInterval> obtainCsvIntervals(List<String> urls) {
         Map<LocalDateTime, MarketInterval> intervals = new HashMap<>();
         for (String url : urls) {
             log.info("Начало обработки исторических данных: {}", url);
@@ -42,7 +42,7 @@ public class CSVProcessingService {
              BufferedInputStream bis = new BufferedInputStream(is);
              ZipInputStream zis = new ZipInputStream(bis)
         ) {
-            extractFiles.addAll(extractFile(zis));
+            extractFiles.addAll(extractFileToTemp(zis));
             for (File extractFile : extractFiles) {
                 try (BufferedReader bufferedReader = new BufferedReader(new FileReader(extractFile))) {
                     final CSVReader csvReader = new CSVReader(bufferedReader);
@@ -51,11 +51,10 @@ public class CSVProcessingService {
                         final MarketInterval marketInterval = new MarketInterval(line);
                         buffer.put(marketInterval.getOpenTime(), marketInterval);
                     }
-                } catch (IOException | CsvValidationException e) {
-                    e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | CsvValidationException e) {
+            log.error("Не удалось получить исторические данные по url={}", url, e);
             e.printStackTrace();
         } finally {
             for (File extractFile : extractFiles) {
@@ -67,7 +66,7 @@ public class CSVProcessingService {
         return buffer;
     }
 
-    private List<File> extractFile(ZipInputStream zipInputStream) throws IOException {
+    private List<File> extractFileToTemp(ZipInputStream zipInputStream) throws IOException {
         List<File> extractedTempFiles = new ArrayList<>();
 
         ZipEntry zipEntry;
@@ -80,8 +79,7 @@ public class CSVProcessingService {
         return extractedTempFiles;
     }
 
-    private static void writeContents(ZipInputStream zipInputStream, File outputFile)
-            throws IOException {
+    private static void writeContents(ZipInputStream zipInputStream, File outputFile) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);) {
             int len;
             byte[] content = new byte[1024];
