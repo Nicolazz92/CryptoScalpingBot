@@ -32,7 +32,7 @@ public class ExchangeInfoService {
         if (!cache.containsKey(symbol)) {
             log.error("Не получилось найти базовый актив для " + symbol);
         }
-        return cache.get(symbol).baseAsset;
+        return cache.get(symbol).getBaseAsset();
     }
 
     @Scheduled(cron = "0 0 0 * * ?")

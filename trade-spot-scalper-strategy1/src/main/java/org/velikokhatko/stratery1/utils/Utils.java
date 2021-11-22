@@ -13,13 +13,12 @@ public final class Utils {
         return balances.stream().map(AssetBalance::toString).collect(Collectors.joining("\n"));
     }
 
-    public static <>
-
-    public static String getKlinesZipURLBySymbol(String symbol, int minusMonth) {
-        final LocalDate date = LocalDate.now().minusMonths(minusMonth);
+    public static String getKlinesZipURLBySymbol(String symbol, int minusDays) {
+        final LocalDate date = LocalDate.now().minusDays(minusDays);
         return Constants.HISTORICAL_DATA_BASE_LINK + Constants.HISTORICAL_DATA_ADDITIONAL_LINK_TEMPLATE
                 .replace("{SYMBOL}", symbol)
                 .replace("{YEAR}", String.valueOf(date.getYear()))
-                .replace("{MONTH}", String.valueOf(date.getMonth().getValue()));
+                .replace("{MONTH}", String.format("%02d", date.getMonth().getValue()))
+                .replace("{DAY}", String.format("%02d", date.getDayOfMonth()));
     }
 }

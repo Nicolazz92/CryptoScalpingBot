@@ -25,13 +25,19 @@ public class SingleCoinRatioReviewService {
 
         Iterator<LocalDateTime> iterator = marketIntervals.keySet().stream().sorted().iterator();
 
+        for (int i = 0; i < ratioParams.getDeltaMinuteInterval() + 1 && iterator.hasNext(); i++) {
+            iterator.next();
+        }
+
         while (iterator.hasNext()) {
             final LocalDateTime currentLDT = iterator.next();
             double currentPrice = marketIntervals.get(currentLDT).getOpen();
 
             if (profitableBuy(ratioParams, hold, currentLDT, marketIntervals)) {
-                double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
-                hold = new Hold(currentPrice, oldPrice, minusFee(resultMoney));
+                Double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
+                if (oldPrice != null) {
+                    hold = new Hold(currentPrice, oldPrice, minusFee(resultMoney));
+                }
             } else if (hold != null && currentPrice >= hold.getExpectingPrice()) {
                 hold.setSellingDate(currentLDT);
                 resultMoney = minusFee(hold.getMoneyAmount() / hold.getBuyingPrice() * currentPrice);
@@ -62,13 +68,17 @@ public class SingleCoinRatioReviewService {
         if (hold != null) {
             return false;
         }
-        double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
+        Double oldPrice = getOldPrice(marketIntervals, ratioParams, currentLDT);
+        if (oldPrice == null) {
+            return false;
+        }
         return isPriceFallingDeepEnough(ratioParams, marketIntervals.get(currentLDT).getOpen(), oldPrice);
     }
 
-    private double getOldPrice(Map<LocalDateTime, MarketInterval> marketIntervals, RatioParams ratioParams, LocalDateTime currentLDT) {
+    private Double getOldPrice(Map<LocalDateTime, MarketInterval> marketIntervals, RatioParams ratioParams, LocalDateTime currentLDT) {
         LocalDateTime oldLDT = currentLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
-        return marketIntervals.get(oldLDT).getOpen();
+        final MarketInterval marketInterval = marketIntervals.get(oldLDT);
+        return marketInterval != null ? marketInterval.getOpen() : null;
     }
 
     private boolean isPriceFallingDeepEnough(RatioParams ratioParams, double currentPrice, double oldPrice) {

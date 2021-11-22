@@ -1,7 +1,8 @@
 package org.velikokhatko.stratery1.services.ratio;
 
-import org.apache.commons.lang3.tuple.Pair;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.api.exchange.SymbolInfoShort;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
@@ -9,65 +10,60 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.utils.Utils;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@Slf4j
 public class SingleCoinRatioSelectingService {
 
     private static final double START_MONEY = 100d;
+    private static final Duration DURATION_ONE_DAY = Duration.of(1, ChronoUnit.DAYS);
+    private static final Duration DURATION_FIVE_DAY = Duration.of(5, ChronoUnit.DAYS);
     private SingleCoinRatioReviewService singleCoinRatioReviewService;
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
+    private double ratioSelectingPeriod;
 
     public RatioParams selectRatio(SymbolInfoShort symbolInfo) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbolInfo);
 
-        //Устанавливаем срок свежести будущих соотношений.
-        //Если имеем 3 последовательных ссылки на месяцы, данные будут свежими до начала следующего месяца,
-        //пока на сервер(предположительно) не выложат данные за следующий месяц.
-        Duration freshDuration = reachableFilesLinks.size() == 3
-                ? Duration.of(ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.now().withDayOfMonth(1).plusMonths(1)), ChronoUnit.DAYS)
-                //Иначе данные следует обновить через день
-                : Duration.of(1, ChronoUnit.DAYS);
+        if (reachableFilesLinks.isEmpty()) {
+            return new RatioParams(15, 10d, LocalDateTime.now().plus(DURATION_ONE_DAY));
+        }
+
+        Duration freshDuration = reachableFilesLinks.size() > ratioSelectingPeriod / 100 * 90
+                ? DURATION_FIVE_DAY
+                : DURATION_ONE_DAY;
 
         Map<LocalDateTime, MarketInterval> marketIntervalMap = marketingIntervalsObtainingService
-                .obtainCsvIntervals(new ArrayList<>());
-        review(marketIntervalMap);
-        return null;
+                .obtainCsvIntervals(reachableFilesLinks);
+        final RatioParams result = review(marketIntervalMap, freshDuration);
+        log.info("Для пары {} были выбраны коэффициенты {}", symbolInfo.getSymbol(), result);
+        return result;
     }
 
     private List<String> getReachableFilesLinks(SymbolInfoShort symbolInfo) {
         List<String> result = new ArrayList<>();
-        Map<Integer, String> urlLinkMap = new HashMap<>();
-        for (int minusMonth = 1; minusMonth < 4; minusMonth++) {
-            final String url = Utils.getKlinesZipURLBySymbol(symbolInfo.symbol, minusMonth);
+        for (int minusDays = 1; minusDays < ratioSelectingPeriod; minusDays++) {
+            final String url = Utils.getKlinesZipURLBySymbol(symbolInfo.getSymbol(), minusDays);
             if (remoteFileExistsCheckingService.isFileExists(url)) {
-                urlLinkMap.put(minusMonth, url);
+                result.add(url);
             }
-        }
-
-        //проверяем доступность ближайшего месяца, если его ещё нет на сервере, начинаем с месяца до этого
-        Pair<Integer, Integer> pastMonthRange = urlLinkMap.containsKey(1)
-                ? Pair.of(1, 3)
-                : Pair.of(2, 4);
-
-        // добавляем последовательные месяцы, от ближайшего к дальнему. Если последовательность прерывается, останавливаем добавление
-        for (int minusMonth = pastMonthRange.getLeft();
-             minusMonth <= pastMonthRange.getRight() && urlLinkMap.containsKey(minusMonth);
-             minusMonth++) {
-            result.add(urlLinkMap.get(minusMonth));
         }
 
         return result;
     }
 
-    private void review(Map<LocalDateTime, MarketInterval> marketIntervalMap, LocalDateTime freshLimit) {
+    private RatioParams review(Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
         List<RatioParams> paramsReviews = new ArrayList<>();
         for (int minuteInterval = 5; minuteInterval <= 25; minuteInterval++) {
             for (double deltaPercent = 3; deltaPercent <= 20; deltaPercent++) {
+                final LocalDateTime freshLimit = LocalDateTime.now().plus(freshDuration);
                 final RatioParams paramsReview = new RatioParams(minuteInterval, deltaPercent, freshLimit);
                 final Double resultMoney = singleCoinRatioReviewService.process(marketIntervalMap, paramsReview);
                 paramsReview.setResultPercent(resultMoney / START_MONEY * 100);
@@ -75,13 +71,21 @@ public class SingleCoinRatioSelectingService {
             }
         }
 
-        Comparator<RatioParams> ratioParamsComparator = Comparator
-                .comparing(RatioParams::getResultPercent).reversed()
-                .thenComparing(RatioParams::getDeltaPercent).reversed();
-        paramsReviews.sort(ratioParamsComparator);
-        System.out.println(paramsReviews.size());
-        System.out.println("Основной результат: " + paramsReviews.get(0));
-        paramsReviews.forEach(System.out::println);
+        final RatioParams maxPercentRP = paramsReviews.stream()
+                .max(Comparator.comparing(RatioParams::getResultPercent)).get();
+        final RatioParams minDeltaMinuteInterval = paramsReviews.stream()
+                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
+                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval))
+                .get();
+        final RatioParams result = paramsReviews.stream()
+                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
+                .filter(pr -> minDeltaMinuteInterval.getDeltaMinuteInterval().equals(pr.getDeltaMinuteInterval()))
+                .min(Comparator.comparing(RatioParams::getDeltaPercent))
+                .get();
+
+//        paramsReviews.stream().sorted(Comparator.comparing(RatioParams::getResultPercent)).forEach(System.out::println);
+//        System.out.println("\nОсновной результат: " + result);
+        return result;
     }
 
     @Autowired
@@ -95,7 +99,12 @@ public class SingleCoinRatioSelectingService {
     }
 
     @Autowired
-    public void setUrlReachableCheckingService(RemoteFileExistsCheckingService remoteFileExistsCheckingService) {
+    public void setRemoteFileExistsCheckingService(RemoteFileExistsCheckingService remoteFileExistsCheckingService) {
         this.remoteFileExistsCheckingService = remoteFileExistsCheckingService;
+    }
+
+    @Value("${ratioSelectingPeriod}")
+    public void setRatioSelectingPeriod(double ratioSelectingPeriod) {
+        this.ratioSelectingPeriod = ratioSelectingPeriod;
     }
 }
