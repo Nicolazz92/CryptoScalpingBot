@@ -6,6 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.5.6</version>
+        <relativePath/>
     </parent>
     <groupId>org.velikokhatko</groupId>
     <artifactId>trade-spot-scalper-strategy1</artifactId>
