@@ -21,15 +21,7 @@ public class MarketingIntervalsObtainingService {
     public Map<LocalDateTime, MarketInterval> obtainCsvIntervals(List<String> urls) {
         Map<LocalDateTime, MarketInterval> intervals = new HashMap<>();
         for (String url : urls) {
-            log.info("Начало обработки исторических данных: {}", url);
-            final Map<LocalDateTime, MarketInterval> buffer = loadMarketIntervalsFromRemote(url);
-            log.info("Конец обработки исторических данных: {}; Значений: {}; интервал [{} - {}]",
-                    url,
-                    buffer.size(),
-                    buffer.keySet().stream().min(LocalDateTime::compareTo).orElseThrow(),
-                    buffer.keySet().stream().max(LocalDateTime::compareTo).orElseThrow()
-            );
-            intervals.putAll(buffer);
+            intervals.putAll(loadMarketIntervalsFromRemote(url));
         }
         return intervals;
     }
