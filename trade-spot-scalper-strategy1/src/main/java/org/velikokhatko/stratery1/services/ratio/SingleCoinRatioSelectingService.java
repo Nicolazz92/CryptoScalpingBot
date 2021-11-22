@@ -75,13 +75,11 @@ public class SingleCoinRatioSelectingService {
                 .max(Comparator.comparing(RatioParams::getResultPercent)).get();
         final RatioParams minDeltaMinuteInterval = paramsReviews.stream()
                 .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
-                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval))
-                .get();
+                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).get();
         final RatioParams result = paramsReviews.stream()
                 .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
                 .filter(pr -> minDeltaMinuteInterval.getDeltaMinuteInterval().equals(pr.getDeltaMinuteInterval()))
-                .min(Comparator.comparing(RatioParams::getDeltaPercent))
-                .get();
+                .min(Comparator.comparing(RatioParams::getDeltaPercent)).get();
 
 //        paramsReviews.stream().sorted(Comparator.comparing(RatioParams::getResultPercent)).forEach(System.out::println);
 //        System.out.println("\nОсновной результат: " + result);
