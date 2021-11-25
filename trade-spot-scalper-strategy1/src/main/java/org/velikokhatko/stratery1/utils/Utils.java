@@ -16,7 +16,9 @@ public final class Utils {
     }
 
     private static String toString(AssetBalance assetBalance) {
-        return String.format("%s: free=%s, locked=%s", assetBalance.getAsset(), assetBalance.getFree(), assetBalance.getLocked());
+        final String free = Constants.DOUBLE_VERBOSE_FORMAT.format(Double.valueOf(assetBalance.getFree()));
+        final String locked = Constants.DOUBLE_VERBOSE_FORMAT.format(Double.valueOf(assetBalance.getLocked()));
+        return String.format("%s: free=%s, locked=%s", assetBalance.getAsset(), free, locked);
     }
 
     public static String getKlinesZipURLBySymbol(String symbol, int minusDays) {
