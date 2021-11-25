@@ -10,7 +10,13 @@ import java.util.stream.Collectors;
 public final class Utils {
 
     public static String assetBalanceListToString(List<AssetBalance> balances) {
-        return balances.stream().map(AssetBalance::toString).collect(Collectors.joining("\n"));
+        return balances.stream()
+                .map(Utils::toString)
+                .collect(Collectors.joining("\n"));
+    }
+
+    private static String toString(AssetBalance assetBalance) {
+        return String.format("%s: free=%s, locked=%s", assetBalance.getAsset(), assetBalance.getFree(), assetBalance.getLocked());
     }
 
     public static String getKlinesZipURLBySymbol(String symbol, int minusDays) {

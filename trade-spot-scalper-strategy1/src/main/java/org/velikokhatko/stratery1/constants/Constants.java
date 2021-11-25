@@ -10,5 +10,6 @@ public final class Constants {
      */
     public static final String HISTORICAL_DATA_ADDITIONAL_LINK_TEMPLATE = "/data/spot/daily/klines/{SYMBOL}/1m/{SYMBOL}-1m-{YEAR}-{MONTH}-{DAY}.zip";
 
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.0#");
+    public static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("#.0#");
+    public static final DecimalFormat DOUBLE_VERBOSE_FORMAT = new DecimalFormat("#.0000#");
 }

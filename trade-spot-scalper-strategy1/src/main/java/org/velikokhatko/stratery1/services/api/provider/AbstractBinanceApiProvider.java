@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.velikokhatko.stratery1.constants.Constants.DECIMAL_FORMAT;
+import static org.velikokhatko.stratery1.constants.Constants.DOUBLE_FORMAT;
+import static org.velikokhatko.stratery1.constants.Constants.DOUBLE_VERBOSE_FORMAT;
 import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 
 @Slf4j
@@ -32,7 +33,10 @@ public abstract class AbstractBinanceApiProvider {
                 .collect(Collectors.toList());
         final String currentBridgeCoinBalance = balances.stream()
                 .filter(ab -> bridgeCoin.equals(ab.getAsset()))
-                .map(AssetBalance::getFree).findFirst().orElse("undefined");
+                .map(AssetBalance::getFree)
+                .map(Double::valueOf)
+                .map(DOUBLE_VERBOSE_FORMAT::format)
+                .findFirst().orElse("undefined");
 
         try {
             List<AssetBalance> resultAsUSD = new ArrayList<>();
@@ -57,23 +61,23 @@ public abstract class AbstractBinanceApiProvider {
 
                 final double freeUSD = Double.parseDouble(assetBalance.getFree()) * usdPrice;
                 fullAmountUSD += freeUSD;
-                balanceUSD.setFree(String.valueOf(freeUSD));
+                balanceUSD.setFree(DOUBLE_FORMAT.format(freeUSD));
                 final double lockedUSD = Double.parseDouble(assetBalance.getLocked()) * usdPrice;
                 fullAmountUSD += lockedUSD;
-                balanceUSD.setLocked(String.valueOf(lockedUSD));
+                balanceUSD.setLocked(DOUBLE_FORMAT.format(lockedUSD));
 
                 resultAsUSD.add(balanceUSD);
             }
             return StringUtils.joinWith("\n",
                     "USD balance: ",
                     assetBalanceListToString(resultAsUSD),
-                    "Full USD amount: " + DECIMAL_FORMAT.format(fullAmountUSD),
-                    "Bridge coin current amount: " + DECIMAL_FORMAT.format(currentBridgeCoinBalance) + bridgeCoin);
+                    "Full USD amount: " + DOUBLE_FORMAT.format(fullAmountUSD),
+                    "Bridge coin current amount: " + currentBridgeCoinBalance + bridgeCoin);
         } catch (TraderBotException e) {
             log.error(e.getMessage());
             return StringUtils.joinWith("\n",
                     "Coin balance: ", assetBalanceListToString(balances),
-                    "Bridge coin current amount: " + DECIMAL_FORMAT.format(currentBridgeCoinBalance) + bridgeCoin);
+                    "Bridge coin current amount: " + currentBridgeCoinBalance + bridgeCoin);
         }
     }
 
