@@ -8,27 +8,31 @@ import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotException;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.velikokhatko.stratery1.constants.Constants.DECIMAL_FORMAT;
 import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 
 @Slf4j
 public abstract class AbstractBinanceApiProvider {
 
     protected BinanceApiRestClient client;
-    private UsdStablecoins bridgeCoin;
+    private String bridgeCoin;
 
     public String getBalance() {
         Account account = client.getAccount();
         final List<AssetBalance> balances = account.getBalances().stream()
                 .filter(balance -> Double.parseDouble(balance.getFree()) != 0 || Double.parseDouble(balance.getLocked()) != 0)
                 .collect(Collectors.toList());
+        final String currentBridgeCoinBalance = balances.stream()
+                .filter(ab -> bridgeCoin.equals(ab.getAsset()))
+                .map(AssetBalance::getFree).findFirst().orElse("undefined");
 
         try {
             List<AssetBalance> resultAsUSD = new ArrayList<>();
@@ -42,7 +46,7 @@ public abstract class AbstractBinanceApiProvider {
                     usdPrice = 1d;
                 } else {
                     String usdPriceString = allPrices.stream()
-                            .filter(tickerPrice -> tickerPrice.getSymbol().equals(asset + bridgeCoin.name()))
+                            .filter(tickerPrice -> tickerPrice.getSymbol().equals(asset + UsdStablecoins.BUSD.name()))
                             .findAny().orElseThrow(() -> new TraderBotException("Не получилось узнать $ курс валюты " + asset))
                             .getPrice();
                     usdPrice = Double.parseDouble(usdPriceString);
@@ -61,12 +65,15 @@ public abstract class AbstractBinanceApiProvider {
                 resultAsUSD.add(balanceUSD);
             }
             return StringUtils.joinWith("\n",
-                    "USD balance:",
+                    "USD balance: ",
                     assetBalanceListToString(resultAsUSD),
-                    "Full USD amount: " + new DecimalFormat("#.0#").format(fullAmountUSD));
+                    "Full USD amount: " + DECIMAL_FORMAT.format(fullAmountUSD),
+                    "Bridge coin current amount: " + DECIMAL_FORMAT.format(currentBridgeCoinBalance) + bridgeCoin);
         } catch (TraderBotException e) {
             log.error(e.getMessage());
-            return StringUtils.joinWith("\n", "Coin balance:", assetBalanceListToString(balances));
+            return StringUtils.joinWith("\n",
+                    "Coin balance: ", assetBalanceListToString(balances),
+                    "Bridge coin current amount: " + DECIMAL_FORMAT.format(currentBridgeCoinBalance) + bridgeCoin);
         }
     }
 
@@ -76,6 +83,7 @@ public abstract class AbstractBinanceApiProvider {
 
     @Value("${bridgeCoin}")
     public void setBridgeCoin(String bridgeCoin) {
-        this.bridgeCoin = UsdStablecoins.valueOf(bridgeCoin);
+        Assert.hasText(bridgeCoin, "Не задана bridgeCoin");
+        this.bridgeCoin = bridgeCoin;
     }
 }

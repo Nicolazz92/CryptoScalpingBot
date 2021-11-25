@@ -14,7 +14,7 @@ class SingleCoinRatioSelectingServiceTest extends BaseStrategy1Test {
     @Test
     void selectRatio() {
         final SymbolInfoShort symbolInfo = new SymbolInfoShort();
-        symbolInfo.setSymbol("ADABUSD");
+        symbolInfo.setSymbol("BONDBNB");
         final RatioParams ratioParams = service.selectRatio(symbolInfo);
         System.out.println(ratioParams);
     }

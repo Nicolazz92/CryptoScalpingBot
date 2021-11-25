@@ -30,10 +30,14 @@ public class SingleCoinRatioSelectingService {
     private double ratioSelectingPeriod;
 
     public RatioParams selectRatio(SymbolInfoShort symbolInfo) {
-        final List<String> reachableFilesLinks = getReachableFilesLinks(symbolInfo);
+        final String symbol = symbolInfo.getSymbol();
+        final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
+        final RatioParams defaultRatioParams = new RatioParams(15, 10d, LocalDateTime.now().plus(DURATION_ONE_DAY));
 
         if (reachableFilesLinks.isEmpty()) {
-            return new RatioParams(15, 10d, LocalDateTime.now().plus(DURATION_ONE_DAY));
+            log.warn("При подборе коэффициентов для пары {} не нашлось доступных ссылок на исторические данные", symbol);
+            log.warn("Для пары {} были выбраны дефолтные коэффициенты {}", symbol, defaultRatioParams);
+            return defaultRatioParams;
         }
 
         Duration freshDuration = reachableFilesLinks.size() > ratioSelectingPeriod / 100 * 90
@@ -42,15 +46,21 @@ public class SingleCoinRatioSelectingService {
 
         Map<LocalDateTime, MarketInterval> marketIntervalMap = marketingIntervalsObtainingService
                 .obtainCsvIntervals(reachableFilesLinks);
+        if (marketIntervalMap.isEmpty()) {
+            log.warn("При подборе коэффициентов для пары {} после парсинга исторических данных коллекция оказалась пустой", symbol);
+            log.warn("Для пары {} были выбраны дефолтные коэффициенты {}", symbol, defaultRatioParams);
+            return defaultRatioParams;
+        }
+
         final RatioParams result = review(marketIntervalMap, freshDuration);
-        log.info("Для пары {} были выбраны коэффициенты {}", symbolInfo.getSymbol(), result);
+        log.info("При подборе коэффициентов для пары {} были выбраны коэффициенты {}", symbol, result);
         return result;
     }
 
-    private List<String> getReachableFilesLinks(SymbolInfoShort symbolInfo) {
+    private List<String> getReachableFilesLinks(String symbol) {
         List<String> result = new ArrayList<>();
         for (int minusDays = 1; minusDays < ratioSelectingPeriod; minusDays++) {
-            final String url = Utils.getKlinesZipURLBySymbol(symbolInfo.getSymbol(), minusDays);
+            final String url = Utils.getKlinesZipURLBySymbol(symbol, minusDays);
             if (remoteFileExistsCheckingService.isFileExists(url)) {
                 result.add(url);
             }
