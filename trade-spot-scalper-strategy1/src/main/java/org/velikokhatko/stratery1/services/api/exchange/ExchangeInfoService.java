@@ -32,6 +32,13 @@ public class ExchangeInfoService {
         return cache.get(symbol).getBaseAsset();
     }
 
+    public Map<String, SymbolInfoShort> getAllSymbolInfoShort() {
+        if (cache.isEmpty()) {
+            warmUpCache();
+        }
+        return cache;
+    }
+
     private void warmUpCache() {
         final List<SymbolInfo> symbols = apiProvider.getExchangeInfo().getSymbols();
         symbols.stream()

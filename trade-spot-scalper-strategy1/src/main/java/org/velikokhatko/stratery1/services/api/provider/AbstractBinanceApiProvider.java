@@ -1,7 +1,6 @@
 package org.velikokhatko.stratery1.services.api.provider;
 
 import com.binance.api.client.BinanceApiRestClient;
-import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.account.AssetBalance;
 import com.binance.api.client.domain.general.ExchangeInfo;
 import com.binance.api.client.domain.market.TickerPrice;
@@ -26,9 +25,30 @@ public abstract class AbstractBinanceApiProvider {
     protected BinanceApiRestClient client;
     private String bridgeCoin;
 
+    public double getFreeBridgeCoinUSDBalance() {
+        String bridgeSymbol = bridgeCoin + UsdStablecoins.BUSD.name();
+
+        try {
+            Double bridgeCoinUSDPrice = getAllPrices().stream()
+                    .filter(tickerPrice -> tickerPrice.getSymbol().equals(bridgeSymbol))
+                    .map(TickerPrice::getPrice)
+                    .map(Double::valueOf).findFirst().orElseThrow();
+
+            Double bridgeCoinFreeAmount = getBalances().stream()
+                    .filter(ab -> bridgeCoin.equals(ab.getAsset()))
+                    .map(AssetBalance::getFree)
+                    .map(Double::valueOf)
+                    .findFirst().orElseThrow();
+
+            return bridgeCoinFreeAmount * bridgeCoinUSDPrice;
+        } catch (Exception e) {
+            log.error("Не получилось узнать свободный $ баланс bridgeCoin: {}", bridgeSymbol, e);
+            return Double.MIN_VALUE;
+        }
+    }
+
     public String getBalance() {
-        Account account = client.getAccount();
-        final List<AssetBalance> balances = account.getBalances().stream()
+        final List<AssetBalance> balances = getBalances().stream()
                 .filter(balance -> Double.parseDouble(balance.getFree()) != 0 || Double.parseDouble(balance.getLocked()) != 0)
                 .collect(Collectors.toList());
         final String currentBridgeCoinBalance = balances.stream()
@@ -42,7 +62,7 @@ public abstract class AbstractBinanceApiProvider {
             List<AssetBalance> resultAsUSD = new ArrayList<>();
             double fullAmountUSD = 0;
 
-            final List<TickerPrice> allPrices = client.getAllPrices();
+            final List<TickerPrice> allPrices = getAllPrices();
             for (AssetBalance assetBalance : balances) {
                 final String asset = assetBalance.getAsset();
                 final double usdPrice;
@@ -79,6 +99,14 @@ public abstract class AbstractBinanceApiProvider {
                     "Coin balance: ", assetBalanceListToString(balances),
                     "Bridge coin current amount: " + currentBridgeCoinBalance + bridgeCoin);
         }
+    }
+
+    public List<TickerPrice> getAllPrices() {
+        return client.getAllPrices();
+    }
+
+    private List<AssetBalance> getBalances() {
+        return client.getAccount().getBalances();
     }
 
     public ExchangeInfo getExchangeInfo() {

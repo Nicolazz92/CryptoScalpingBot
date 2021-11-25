@@ -1,38 +1,44 @@
 package org.velikokhatko.stratery1.services.ratio;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.velikokhatko.stratery1.services.api.exchange.SymbolInfoShort;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.utils.Utils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.velikokhatko.stratery1.constants.Constants.DURATION_FIVE_DAYS;
+import static org.velikokhatko.stratery1.constants.Constants.DURATION_ONE_DAY;
 
 @Service
 @Slf4j
 public class SingleCoinRatioSelectingService {
 
     private static final double START_MONEY = 100d;
-    private static final Duration DURATION_ONE_DAY = Duration.of(1, ChronoUnit.DAYS);
-    private static final Duration DURATION_FIVE_DAY = Duration.of(5, ChronoUnit.DAYS);
     private SingleCoinRatioReviewService singleCoinRatioReviewService;
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
+    private final Map<String, RatioParams> cache = new HashMap<>();
     private double ratioSelectingPeriod;
 
-    public RatioParams selectRatio(SymbolInfoShort symbolInfo) {
-        final String symbol = symbolInfo.getSymbol();
+    public RatioParams selectRatio(String symbol) {
+        if (!cache.containsKey(symbol)
+                || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
+            cache.put(symbol, _selectRatio(symbol));
+        }
+        return cache.get(symbol);
+    }
+
+    private RatioParams _selectRatio(String symbol) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
-        final RatioParams defaultRatioParams = new RatioParams(15, 10d, LocalDateTime.now().plus(DURATION_ONE_DAY));
+        final RatioParams defaultRatioParams = new RatioParams(15, 10d,
+                LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 240)));
 
         if (reachableFilesLinks.isEmpty()) {
             log.warn("При подборе коэффициентов для пары {} не нашлось доступных ссылок на исторические данные", symbol);
@@ -41,8 +47,8 @@ public class SingleCoinRatioSelectingService {
         }
 
         Duration freshDuration = reachableFilesLinks.size() > ratioSelectingPeriod / 100 * 90
-                ? DURATION_FIVE_DAY
-                : DURATION_ONE_DAY;
+                ? DURATION_FIVE_DAYS.plusMinutes(RandomUtils.nextLong(0, 240))
+                : DURATION_ONE_DAY.plusMinutes(RandomUtils.nextLong(0, 240));
 
         Map<LocalDateTime, MarketInterval> marketIntervalMap = marketingIntervalsObtainingService
                 .obtainCsvIntervals(reachableFilesLinks);
