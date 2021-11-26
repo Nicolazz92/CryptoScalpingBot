@@ -54,14 +54,14 @@ public class ExchangeInfoService {
     }
 
     private void warmUpCache() {
-        final List<SymbolInfo> symbols = apiProvider.getExchangeInfo().getSymbols();
-        List<SymbolInfo> count = symbols.stream()
+        final List<SymbolInfo> symbols = apiProvider.getExchangeInfo().getSymbols().stream()
                 .filter(symbolInfo -> SymbolStatus.TRADING == symbolInfo.getStatus())
                 .filter(SymbolInfo::isSpotTradingAllowed)
                 .filter(symbolInfo -> bridgeCoin.equals(symbolInfo.getQuoteAsset()))
                 .peek(symbolInfo -> cache.put(symbolInfo.getSymbol(), new SymbolInfoShort(symbolInfo)))
                 .collect(Collectors.toList());
-        log.info("Была получена информация о {} торговых парах: {}", count.size(), count.stream().map(SymbolInfo::getSymbol));
+        log.info("Была получена информация о {} торговых парах: {}",
+                symbols.size(), symbols.stream().map(SymbolInfo::getSymbol).collect(Collectors.joining(", ")));
         if (cache.isEmpty() && !symbols.isEmpty()) {
             log.error("Не удалось заполнить кэш, возможно, bridgeCoin задана с ошибкой");
         }
