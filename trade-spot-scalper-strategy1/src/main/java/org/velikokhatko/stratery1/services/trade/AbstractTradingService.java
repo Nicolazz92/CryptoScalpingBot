@@ -1,6 +1,7 @@
 package org.velikokhatko.stratery1.services.trade;
 
 import com.binance.api.client.domain.market.TickerPrice;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.velikokhatko.stratery1.constants.Constants.CRON_EVERY_MINUTE;
 
+@Slf4j
 public abstract class AbstractTradingService {
 
 
@@ -49,7 +51,7 @@ public abstract class AbstractTradingService {
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
-            ratioParams.forEach(System.out::println);
+            ratioParams.forEach(rp -> log.info("Условия для выставления ордеров: {}", rp));
         }
     }
 
