@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -15,21 +16,23 @@ public class PredictionService {
 
     private final Map<String, Prediction> cache = new ConcurrentHashMap<>();
     private ScrappingService scrappingService;
-    private ExecutorService executorService;
+    private ExecutorService executorServiceFixedSize;
 
     /**
      * Пример: predictionService.canBuy("XRPBUSD");
-     * Даёт прогноз по вылютной паре
+     * Даёт прогноз по торговой паре
      *
      * @param symbol валютная пара
      * @return можно ли покупать
      */
     public boolean canBuy(String symbol) {
         if (!cache.containsKey(symbol) || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
-            executorService.execute(() -> {
-                Prediction prediction = scrappingService.getPrediction(symbol);
-                log.info("Для валютной пары получено предсказание: {}", prediction);
-                cache.put(symbol, prediction);
+            executorServiceFixedSize.execute(() -> {
+                Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
+                predictionOptional.ifPresent(prediction -> {
+                    log.info("Для пары {} получено предсказание: {}", symbol, predictionOptional);
+                    cache.put(symbol, predictionOptional.get());
+                });
             });
             return false;
         }
@@ -43,7 +46,7 @@ public class PredictionService {
     }
 
     @Autowired
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
+    public void setExecutorServiceFixedSize(ExecutorService executorServiceFixedSize) {
+        this.executorServiceFixedSize = executorServiceFixedSize;
     }
 }

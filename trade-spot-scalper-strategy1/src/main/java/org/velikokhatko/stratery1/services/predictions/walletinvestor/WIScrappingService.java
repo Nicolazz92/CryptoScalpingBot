@@ -26,10 +26,10 @@ public class WIScrappingService implements ScrappingService {
     private int predictionHoursTTL;
 
     @Override
-    public Prediction getPrediction(String symbol) {
+    public Optional<Prediction> getPrediction(String symbol) {
         Optional<String> baseAssetOptional = exchangeInfoService.getBaseAsset(symbol);
         if (baseAssetOptional.isEmpty()) {
-            return new Prediction(false, 1);
+            return Optional.empty();
         }
 
         final String url = FORECAST_URL + baseAssetOptional.get();
@@ -48,10 +48,10 @@ public class WIScrappingService implements ScrappingService {
             } else {
                 throw new TraderBotException("Не удалось спарсить " + url);
             }
-            return new Prediction(isUp, predictionHoursTTL);
+            return Optional.of(new Prediction(isUp, predictionHoursTTL));
         } catch (IOException | TraderBotException e) {
             log.error("Ошибка при получении прогноза с {}", url, e);
-            return new Prediction(false, 1);
+            return Optional.empty();
         }
     }
 

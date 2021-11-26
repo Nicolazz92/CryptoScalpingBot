@@ -6,12 +6,18 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Configuration
 public class AppConfig {
 
     @Bean
-    public ExecutorService executorService(@Value("${threadPoolSize}") int threadPoolSize) {
+    public ExecutorService executorServiceFixedSize(@Value("${threadPoolSize}") int threadPoolSize) {
         return Executors.newFixedThreadPool(threadPoolSize);
+    }
+
+    @Bean
+    public ScheduledExecutorService executorServiceScheduled() {
+        return Executors.newScheduledThreadPool(2);
     }
 }

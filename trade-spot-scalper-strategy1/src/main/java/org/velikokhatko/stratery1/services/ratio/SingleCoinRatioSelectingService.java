@@ -26,14 +26,14 @@ public class SingleCoinRatioSelectingService {
     private SingleCoinRatioReviewService singleCoinRatioReviewService;
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
-    private ExecutorService executorService;
+    private ExecutorService executorServiceFixedSize;
     private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
     private double ratioSelectingPeriod;
 
     public Optional<RatioParams> selectRatio(String symbol) {
         if (!cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
             //кладем в очередь задачу на заполнение кэша
-            executorService.execute(() -> {
+            executorServiceFixedSize.execute(() -> {
                 RatioParams ratioParams = _selectRatio(symbol);
                 cache.put(symbol, ratioParams);
             });
@@ -125,8 +125,8 @@ public class SingleCoinRatioSelectingService {
     }
 
     @Autowired
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
+    public void setExecutorServiceFixedSize(ExecutorService executorServiceFixedSize) {
+        this.executorServiceFixedSize = executorServiceFixedSize;
     }
 
     @Value("${ratioSelectingPeriod}")
