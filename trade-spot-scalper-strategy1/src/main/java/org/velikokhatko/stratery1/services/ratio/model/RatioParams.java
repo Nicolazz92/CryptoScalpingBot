@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class RatioParams {
 
+    private String symbol;
+
     /**
      * Минутный интервал, в который должно произойти изменение цены
      */
@@ -38,9 +40,11 @@ public class RatioParams {
      */
     private LocalDateTime freshLimit;
 
-    public RatioParams(Integer deltaMinuteInterval,
+    public RatioParams(String symbol,
+                       Integer deltaMinuteInterval,
                        Double deltaPercent,
                        LocalDateTime freshLimit) {
+        this.symbol = symbol;
         this.deltaMinuteInterval = deltaMinuteInterval;
         this.deltaPercent = deltaPercent;
         this.freshLimit = freshLimit;

@@ -13,12 +13,13 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.velikokhatko.stratery1.constants.Constants.CRON_EVERY_MINUTE;
+
 public abstract class AbstractTradingService {
+
 
     protected AbstractBinanceApiProvider binanceApiProvider;
     protected ExchangeInfoService exchangeInfoService;
@@ -30,22 +31,25 @@ public abstract class AbstractTradingService {
 
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
-     * <p>
-     * Новая итерация трейдинга каждую минуту
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = CRON_EVERY_MINUTE)
     public void trade() {
         updateAllPricesCache();
 
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
         if (availableOrderSlots > 0) {
-            List<String> buyCandidateKeys = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
+            List<RatioParams> ratioParams = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
                     .filter(predictionService::canBuy)
                     .filter(this::doesNotHolding)
                     .filter(this::isProfitableFall)
+                    .map(ratioSelectingService::selectRatio)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
+                    .limit(availableOrderSlots)
                     .collect(Collectors.toList());
-
+            ratioParams.forEach(System.out::println);
         }
     }
 
@@ -66,19 +70,22 @@ public abstract class AbstractTradingService {
     protected abstract double getFreeBridgeCoinUSDBalance();
 
     private boolean isProfitableFall(String symbol) {
-        RatioParams ratioParams = ratioSelectingService.selectRatio(symbol);
-        LocalDateTime currentTruncatedLDT = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime oldTruncatedLDT = currentTruncatedLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
+        Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
+        if (ratioParamsOptional.isPresent()) {
+            RatioParams ratioParams = ratioParamsOptional.get();
+            LocalDateTime currentTruncatedLDT = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+            LocalDateTime oldTruncatedLDT = currentTruncatedLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
 
-        Map<String, Double> currentPrices = allPricesCache.get(currentTruncatedLDT);
-        Map<String, Double> oldPrices = allPricesCache.get(oldTruncatedLDT);
+            Map<String, Double> currentPrices = allPricesCache.get(currentTruncatedLDT);
+            Map<String, Double> oldPrices = allPricesCache.get(oldTruncatedLDT);
 
-        if (oldPrices != null && oldPrices.containsKey(symbol)
-                && currentPrices != null && currentPrices.containsKey(symbol)) {
-            Double oldPrice = oldPrices.get(symbol);
-            Double currentPrice = currentPrices.get(symbol);
-            return oldPrice > currentPrice
-                    && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
+            if (oldPrices != null && oldPrices.containsKey(symbol)
+                    && currentPrices != null && currentPrices.containsKey(symbol)) {
+                Double oldPrice = oldPrices.get(symbol);
+                Double currentPrice = currentPrices.get(symbol);
+                return oldPrice > currentPrice
+                        && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
+            }
         }
 
         return false;
@@ -97,6 +104,11 @@ public abstract class AbstractTradingService {
     @Autowired
     public void setPredictionService(PredictionService predictionService) {
         this.predictionService = predictionService;
+    }
+
+    @Autowired
+    public void setRatioSelectingService(SingleCoinRatioSelectingService ratioSelectingService) {
+        this.ratioSelectingService = ratioSelectingService;
     }
 
     @Value("${orderLotUSDSize}")

@@ -14,6 +14,7 @@ import org.velikokhatko.stratery1.services.predictions.ScrappingService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,12 +27,12 @@ public class WIScrappingService implements ScrappingService {
 
     @Override
     public Prediction getPrediction(String symbol) {
-        final String baseAsset = exchangeInfoService.getBaseAsset(symbol);
-        if (baseAsset == null) {
+        Optional<String> baseAssetOptional = exchangeInfoService.getBaseAsset(symbol);
+        if (baseAssetOptional.isEmpty()) {
             return new Prediction(false, 1);
         }
 
-        final String url = FORECAST_URL + baseAsset;
+        final String url = FORECAST_URL + baseAssetOptional.get();
         try {
             Document document = Jsoup.connect(url).get();
             final List<Element> elements = document

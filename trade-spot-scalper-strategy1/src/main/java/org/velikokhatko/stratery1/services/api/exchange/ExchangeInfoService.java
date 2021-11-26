@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
@@ -20,21 +19,22 @@ public class ExchangeInfoService {
 
     private final Map<String, SymbolInfoShort> cache = new HashMap<>();
     private AbstractBinanceApiProvider apiProvider;
+    private ExecutorService executorService;
     private String bridgeCoin;
 
-    public String getBaseAsset(String symbol) {
-        if (!cache.containsKey(symbol)) {
-            warmUpCache();
-        }
+    public Optional<String> getBaseAsset(String symbol) {
         if (!cache.containsKey(symbol)) {
             log.error("Не получилось найти базовый актив для " + symbol);
+            executorService.execute(this::warmUpCache);
+            return Optional.empty();
         }
-        return cache.get(symbol).getBaseAsset();
+        return Optional.ofNullable(cache.get(symbol).getBaseAsset());
     }
 
     public Map<String, SymbolInfoShort> getAllSymbolInfoShort() {
         if (cache.isEmpty()) {
-            warmUpCache();
+            executorService.execute(this::warmUpCache);
+            return Collections.emptyMap();
         }
         return cache;
     }
@@ -60,6 +60,11 @@ public class ExchangeInfoService {
     @Autowired
     public void setApiProvider(AbstractBinanceApiProvider apiProvider) {
         this.apiProvider = apiProvider;
+    }
+
+    @Autowired
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Value("${bridgeCoin}")

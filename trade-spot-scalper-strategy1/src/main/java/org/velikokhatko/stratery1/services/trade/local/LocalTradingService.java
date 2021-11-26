@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Service
 public class LocalTradingService extends AbstractTradingService {
-    private double money = 1000d;
+    private double money = 150d;
     private Map<String, Hold> holdMap = new HashMap<>();
 
     @Override

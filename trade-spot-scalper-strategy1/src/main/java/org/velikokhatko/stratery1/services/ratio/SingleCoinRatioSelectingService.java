@@ -12,6 +12,8 @@ import org.velikokhatko.stratery1.utils.Utils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 import static org.velikokhatko.stratery1.constants.Constants.DURATION_FIVE_DAYS;
 import static org.velikokhatko.stratery1.constants.Constants.DURATION_ONE_DAY;
@@ -24,20 +26,25 @@ public class SingleCoinRatioSelectingService {
     private SingleCoinRatioReviewService singleCoinRatioReviewService;
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
-    private final Map<String, RatioParams> cache = new HashMap<>();
+    private ExecutorService executorService;
+    private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
     private double ratioSelectingPeriod;
 
-    public RatioParams selectRatio(String symbol) {
-        if (!cache.containsKey(symbol)
-                || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
-            cache.put(symbol, _selectRatio(symbol));
+    public Optional<RatioParams> selectRatio(String symbol) {
+        if (!cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
+            //кладем в очередь задачу на заполнение кэша
+            executorService.execute(() -> {
+                RatioParams ratioParams = _selectRatio(symbol);
+                cache.put(symbol, ratioParams);
+            });
+            return Optional.empty();
         }
-        return cache.get(symbol);
+        return Optional.ofNullable(cache.get(symbol));
     }
 
     private RatioParams _selectRatio(String symbol) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
-        final RatioParams defaultRatioParams = new RatioParams(15, 10d,
+        final RatioParams defaultRatioParams = new RatioParams(symbol, 15, 10d,
                 LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 240)));
 
         if (reachableFilesLinks.isEmpty()) {
@@ -58,7 +65,7 @@ public class SingleCoinRatioSelectingService {
             return defaultRatioParams;
         }
 
-        final RatioParams result = review(marketIntervalMap, freshDuration);
+        final RatioParams result = review(symbol, marketIntervalMap, freshDuration);
         log.info("При подборе коэффициентов для пары {} были выбраны коэффициенты {}", symbol, result);
         return result;
     }
@@ -75,12 +82,12 @@ public class SingleCoinRatioSelectingService {
         return result;
     }
 
-    private RatioParams review(Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
+    private RatioParams review(String symbol, Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
         List<RatioParams> paramsReviews = new ArrayList<>();
         for (int minuteInterval = 5; minuteInterval <= 30; minuteInterval++) {
             for (double deltaPercent = 0; deltaPercent <= 20; deltaPercent++) {
                 final LocalDateTime freshLimit = LocalDateTime.now().plus(freshDuration);
-                final RatioParams paramsReview = new RatioParams(minuteInterval, deltaPercent, freshLimit);
+                final RatioParams paramsReview = new RatioParams(symbol, minuteInterval, deltaPercent, freshLimit);
                 final Double resultMoney = singleCoinRatioReviewService.process(marketIntervalMap, paramsReview);
                 paramsReview.setResultPercent(resultMoney / START_MONEY * 100);
                 paramsReviews.add(paramsReview);
@@ -115,6 +122,11 @@ public class SingleCoinRatioSelectingService {
     @Autowired
     public void setRemoteFileExistsCheckingService(RemoteFileExistsCheckingService remoteFileExistsCheckingService) {
         this.remoteFileExistsCheckingService = remoteFileExistsCheckingService;
+    }
+
+    @Autowired
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Value("${ratioSelectingPeriod}")
