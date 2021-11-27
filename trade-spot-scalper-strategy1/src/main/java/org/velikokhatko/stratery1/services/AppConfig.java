@@ -17,7 +17,7 @@ public class AppConfig {
     }
 
     @Bean
-    public ScheduledExecutorService executorServiceScheduled() {
+    public ScheduledExecutorService scheduledExecutorService() {
         return Executors.newScheduledThreadPool(2);
     }
 }

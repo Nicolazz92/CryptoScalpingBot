@@ -29,4 +29,14 @@ public final class Utils {
                 .replace("{MONTH}", String.format("%02d", date.getMonth().getValue()))
                 .replace("{DAY}", String.format("%02d", date.getDayOfMonth()));
     }
+
+    /**
+     * 0.1% - самая большая комиссия
+     *
+     * @param resultMoney до уплаты комиссии
+     * @return после уплаты комиссии
+     */
+    public static double minusFee(double resultMoney) {
+        return resultMoney / 1000 * 999;
+    }
 }

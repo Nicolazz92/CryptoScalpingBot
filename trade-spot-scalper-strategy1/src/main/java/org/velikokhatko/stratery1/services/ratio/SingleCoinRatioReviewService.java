@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.Map;
 
+import static org.velikokhatko.stratery1.utils.Utils.minusFee;
+
 /**
  * Сервис оценивает конкретный набор ratioParams, сколько при идеальных условиях можно было бы получить дохода
  * на последовательности цен marketIntervals.
@@ -49,16 +51,6 @@ public class SingleCoinRatioReviewService {
         ratioParams.setResultPercent(resultMoney / START_MONEY * 100);
 
         return resultMoney;
-    }
-
-    /**
-     * 0.1% - самая большая комиссия
-     *
-     * @param resultMoney до уплаты комиссии
-     * @return после уплаты комиссии
-     */
-    private double minusFee(double resultMoney) {
-        return resultMoney / 1000 * 999;
     }
 
     private boolean profitableBuy(RatioParams ratioParams,

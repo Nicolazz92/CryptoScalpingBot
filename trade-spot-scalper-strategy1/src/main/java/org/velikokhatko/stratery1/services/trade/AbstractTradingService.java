@@ -22,12 +22,11 @@ import static org.velikokhatko.stratery1.constants.Constants.CRON_EVERY_MINUTE;
 @Slf4j
 public abstract class AbstractTradingService {
 
-
     protected AbstractBinanceApiProvider binanceApiProvider;
     protected ExchangeInfoService exchangeInfoService;
     protected PredictionService predictionService;
     protected SingleCoinRatioSelectingService ratioSelectingService;
-    private double orderLotUSDSize;
+    protected double orderLotUSDSize;
 
     protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new HashMap<>();
 
@@ -41,7 +40,7 @@ public abstract class AbstractTradingService {
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
         if (availableOrderSlots > 0) {
-            List<RatioParams> ratioParams = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
+            List<RatioParams> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
                     .filter(predictionService::canBuy)
                     .filter(this::doesNotHolding)
                     .filter(this::isProfitableFall)
@@ -52,11 +51,13 @@ public abstract class AbstractTradingService {
                     .peek(rp -> log.info("Условия для выставления ордера: {}", rp))
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
-            ratioParams.forEach(rp -> log.info("Готово к выставлению ордера: {}", rp));
+            ratioParamsPotentialOrders.forEach(rp -> log.info("Готово к выставлению ордера: {}", rp));
+
+            ratioParamsPotentialOrders.forEach(this::openLongPosition);
         }
     }
 
-    private void updateAllPricesCache() {
+    protected void updateAllPricesCache() {
         allPricesCache.remove(LocalDateTime.now().minusMinutes(40).truncatedTo(ChronoUnit.MINUTES));
         allPricesCache.put(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES),
@@ -93,6 +94,8 @@ public abstract class AbstractTradingService {
 
         return false;
     }
+
+    abstract protected void openLongPosition(RatioParams ratioParams);
 
     @Autowired
     public void setBinanceApiProvider(AbstractBinanceApiProvider binanceApiProvider) {

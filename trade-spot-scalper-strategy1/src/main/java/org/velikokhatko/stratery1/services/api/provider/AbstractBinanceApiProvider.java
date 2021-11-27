@@ -102,6 +102,10 @@ public abstract class AbstractBinanceApiProvider {
         return client.getAllPrices();
     }
 
+    public TickerPrice getPrice(String symbol) {
+        return client.getPrice(symbol);
+    }
+
     private List<AssetBalance> getBalances() {
         return client.getAccount().getBalances();
     }
