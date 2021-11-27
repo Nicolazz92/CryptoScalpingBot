@@ -34,6 +34,9 @@ public class SingleCoinRatioSelectingService {
         if (!cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
             //кладем в очередь задачу на заполнение кэша
             executorServiceFixedSize.execute(() -> {
+                if (cache.containsKey(symbol)) {
+                    return;
+                }
                 RatioParams ratioParams = _selectRatio(symbol);
                 cache.put(symbol, ratioParams);
             });

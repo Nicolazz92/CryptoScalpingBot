@@ -29,10 +29,7 @@ public abstract class AbstractBinanceApiProvider {
         String bridgeSymbol = bridgeCoin + UsdStablecoins.BUSD.name();
 
         try {
-            Double bridgeCoinUSDPrice = getAllPrices().stream()
-                    .filter(tickerPrice -> tickerPrice.getSymbol().equals(bridgeSymbol))
-                    .map(TickerPrice::getPrice)
-                    .map(Double::valueOf).findFirst().orElseThrow();
+            Double bridgeCoinUSDPrice = Double.valueOf(client.getPrice(bridgeSymbol).getPrice());
 
             Double bridgeCoinFreeAmount = getBalances().stream()
                     .filter(ab -> bridgeCoin.equals(ab.getAsset()))
