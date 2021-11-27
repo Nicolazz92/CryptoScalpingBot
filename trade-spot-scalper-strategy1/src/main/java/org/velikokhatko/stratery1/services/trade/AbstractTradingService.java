@@ -49,14 +49,12 @@ public abstract class AbstractTradingService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
-                    .peek(rp -> log.debug("Условия для выставления ордера: {}", rp))
+                    .peek(rp -> log.info("Условия для выставления ордера: {}", rp))
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
             ratioParams.forEach(rp -> log.info("Готово к выставлению ордера: {}", rp));
         }
     }
-
-    abstract protected boolean doesNotHolding(String s);
 
     private void updateAllPricesCache() {
         allPricesCache.remove(LocalDateTime.now().minusMinutes(40).truncatedTo(ChronoUnit.MINUTES));
@@ -71,6 +69,8 @@ public abstract class AbstractTradingService {
     }
 
     protected abstract double getFreeBridgeCoinUSDBalance();
+
+    abstract protected boolean doesNotHolding(String s);
 
     private boolean isProfitableFall(String symbol) {
         Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
