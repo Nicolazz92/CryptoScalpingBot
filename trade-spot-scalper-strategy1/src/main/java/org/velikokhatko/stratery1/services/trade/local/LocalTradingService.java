@@ -62,9 +62,11 @@ public class LocalTradingService extends AbstractTradingService {
         Optional<Double> currentPrice = getPrice(currentLDT, ratioParams.getSymbol());
         Optional<Double> oldPrice = getOldPrice(currentLDT, ratioParams);
         if (oldPrice.isPresent() && currentPrice.isPresent() && money > orderLotUSDSize) {
-            Hold hold = new Hold(currentPrice.get(), oldPrice.get(), minusFee(orderLotUSDSize));
+            Double buyingPrice = currentPrice.get();
+            double moneyAmountBeforeFee = orderLotUSDSize / buyingPrice;
+            Hold hold = new Hold(buyingPrice, oldPrice.get(), minusFee(moneyAmountBeforeFee));
             holdMap.put(ratioParams.getSymbol(), hold);
-            money -= orderLotUSDSize;
+            money -= moneyAmountBeforeFee * buyingPrice;
             log.info("Открыта позиция на пару {}: {}\nВсего денег: {}", ratioParams.getSymbol(), hold, countAllMoney());
         }
     }
@@ -77,10 +79,11 @@ public class LocalTradingService extends AbstractTradingService {
     private double countAllMoney() {
         double result = money;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
-            Optional<Double> price = getPrice(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), entry.getKey());
-            if (price.isPresent()) {
-                result += entry.getValue().getMoneyAmount() * price.get();
-            }
+//            Optional<Double> price = getPrice(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), entry.getKey());
+//            if (price.isPresent()) {
+//                result += entry.getValue().getMoneyAmount() * price.get();
+//            }
+            result += Double.parseDouble(binanceApiProvider.getPrice(entry.getKey()).getPrice());
         }
         return result;
     }
