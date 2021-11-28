@@ -1,9 +1,6 @@
 package org.velikokhatko.stratery1.services.ratio.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +8,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
 public class RatioParams {
 
     private String symbol;
@@ -48,5 +46,12 @@ public class RatioParams {
         this.deltaMinuteInterval = deltaMinuteInterval;
         this.deltaPercent = deltaPercent;
         this.freshLimit = freshLimit;
+    }
+
+    public double calculateEffectivity() {
+        if (resultPercent == null || dealsCount == 0) {
+            return 0;
+        }
+        return (resultPercent - 100d) / dealsCount;
     }
 }

@@ -28,21 +28,28 @@ public class SingleCoinRatioSelectingService {
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
     private ExecutorService executorServiceFixedSize;
     private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
+    private final Set<String> ratioSelectProcessing = new HashSet<>();
     private double ratioSelectingPeriod;
 
     public Optional<RatioParams> selectRatio(String symbol) {
-        if (!cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
+        if (!ratioSelectProcessing.contains(symbol) && needToUpdateRatioParams(symbol)) {
             //кладем в очередь задачу на заполнение кэша
             executorServiceFixedSize.execute(() -> {
+                ratioSelectProcessing.add(symbol);
                 if (cache.containsKey(symbol)) {
                     return;
                 }
                 RatioParams ratioParams = _selectRatio(symbol);
                 cache.put(symbol, ratioParams);
+                ratioSelectProcessing.remove(symbol);
             });
             return Optional.empty();
         }
         return Optional.ofNullable(cache.get(symbol));
+    }
+
+    private boolean needToUpdateRatioParams(String symbol) {
+        return !cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now());
     }
 
     private RatioParams _selectRatio(String symbol) {
@@ -97,19 +104,12 @@ public class SingleCoinRatioSelectingService {
             }
         }
 
-        final RatioParams maxPercentRP = paramsReviews.stream()
-                .max(Comparator.comparing(RatioParams::getResultPercent)).get();
-        final RatioParams minDeltaMinuteInterval = paramsReviews.stream()
-                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
-                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).get();
-        final RatioParams result = paramsReviews.stream()
-                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
-                .filter(pr -> minDeltaMinuteInterval.getDeltaMinuteInterval().equals(pr.getDeltaMinuteInterval()))
-                .min(Comparator.comparing(RatioParams::getDeltaPercent)).get();
-
-//        paramsReviews.stream().sorted(Comparator.comparing(RatioParams::getResultPercent)).forEach(System.out::println);
-//        System.out.println("\nОсновной результат: " + result);
-        return result;
+        double maxCalculateEffectivity = paramsReviews.stream()
+                .max(Comparator.comparing(RatioParams::calculateEffectivity))
+                .orElse(new RatioParams()).calculateEffectivity();
+        return paramsReviews.stream()
+                .filter(rp -> rp.calculateEffectivity() == maxCalculateEffectivity)
+                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElseThrow();
     }
 
     @Autowired
