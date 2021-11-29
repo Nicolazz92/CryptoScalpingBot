@@ -51,7 +51,7 @@ public class WIScrappingService implements ScrappingService {
             return Optional.of(new Prediction(isUp, predictionHoursTTL));
         } catch (IOException | TraderBotException e) {
             log.error("Ошибка при получении прогноза с {}", url, e);
-            return Optional.empty();
+            return Optional.of(new Prediction(false, predictionHoursTTL));
         }
     }
 
