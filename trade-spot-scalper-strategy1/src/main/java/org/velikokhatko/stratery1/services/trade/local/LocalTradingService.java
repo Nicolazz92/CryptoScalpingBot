@@ -39,7 +39,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     @PostConstruct
     public void closeLongPositions() {
-        scheduledExecutorService.schedule(() -> {
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
             updateAllPricesCache();
             Set<String> holdSymbols = holdMap.keySet();
             holdSymbols.forEach(holdSymbol -> {
@@ -55,7 +55,7 @@ public class LocalTradingService extends AbstractTradingService {
                     }
                 });
             });
-        }, 30, TimeUnit.SECONDS);
+        }, 1, 30, TimeUnit.SECONDS);
     }
 
     @Override
