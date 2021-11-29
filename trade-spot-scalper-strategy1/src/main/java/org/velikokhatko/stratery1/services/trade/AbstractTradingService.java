@@ -51,10 +51,14 @@ public abstract class AbstractTradingService {
                     .peek(rp -> log.info("Условия для выставления ордера: {}", rp))
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
-            ratioParamsPotentialOrders.forEach(rp -> {
-                log.info("Готово к выставлению ордера: {}", rp);
-                openLongPosition(rp);
-            });
+            if (ratioParamsPotentialOrders.isEmpty()) {
+                log.info("Не найдено условий для выставления ордеров");
+            } else {
+                ratioParamsPotentialOrders.forEach(rp -> {
+                    log.info("Готово к выставлению ордера: {}", rp);
+                    openLongPosition(rp);
+                });
+            }
         }
     }
 
