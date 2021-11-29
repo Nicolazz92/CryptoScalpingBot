@@ -49,7 +49,7 @@ public class LocalTradingService extends AbstractTradingService {
                     if (price >= hold.getExpectingPrice()) {
                         bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
                         holdMap.remove(holdSymbol);
-                        log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}", holdSymbol, hold, countAllMoney());
+                        log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
                     }
                 });
             });
@@ -67,7 +67,7 @@ public class LocalTradingService extends AbstractTradingService {
             Hold hold = new Hold(buyingPrice, oldPrice.get(), minusFee(moneyAmountBeforeFee));
             holdMap.put(ratioParams.getSymbol(), hold);
             bridgeDepositUSD -= moneyAmountBeforeFee * buyingPrice;
-            log.info("Открыта позиция на пару {}: {}\nВсего денег: {}", ratioParams.getSymbol(), hold, countAllMoney());
+            log.info("Открыта позиция на пару {}: {}\nВсего денег: {}$", ratioParams.getSymbol(), hold, countAllMoney());
         }
     }
 
