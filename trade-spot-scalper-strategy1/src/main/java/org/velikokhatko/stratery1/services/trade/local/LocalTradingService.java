@@ -24,7 +24,7 @@ import static org.velikokhatko.stratery1.utils.Utils.minusFee;
 public class LocalTradingService extends AbstractTradingService {
 
     private ScheduledExecutorService scheduledExecutorService;
-    private double bridgeDepositUSD = 160d;
+    private double bridgeDepositUSD = 500d;
     private final Map<String, Hold> holdMap = new HashMap<>();
 
     @Override
