@@ -86,17 +86,17 @@ public abstract class AbstractTradingService {
             Map<String, Double> currentPrices = allPricesCache.get(currentPriceKey);
             Map<String, Double> oldPrices = allPricesCache.get(oldPriceKey);
 
-            if (oldPrices != null && oldPrices.containsKey(symbol)
-                    && currentPrices != null && currentPrices.containsKey(symbol)) {
+            if (oldPrices != null && oldPrices.get(symbol) != null
+                    && currentPrices != null && currentPrices.get(symbol) != null) {
                 Double oldPrice = oldPrices.get(symbol);
                 Double currentPrice = currentPrices.get(symbol);
                 return oldPrice > currentPrice
                         && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
             } else {
-                if (currentPrices == null || !currentPrices.containsKey(symbol)) {
+                if (currentPrices == null || currentPrices.get(symbol) == null) {
                     log.warn("Не найдены текущие значения цены для символа {} по ключу {}", symbol, currentPriceKey);
                 }
-                if (oldPrices == null || !oldPrices.containsKey(symbol)) {
+                if (oldPrices == null || oldPrices.get(symbol) == null) {
                     log.warn("Не найдены старые значения цены для символа {} по ключу {}", symbol, oldPriceKey);
                 }
             }
