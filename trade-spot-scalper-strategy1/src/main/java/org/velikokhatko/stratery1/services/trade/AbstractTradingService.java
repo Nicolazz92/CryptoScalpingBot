@@ -12,8 +12,6 @@ import org.velikokhatko.stratery1.services.predictions.PredictionService;
 import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService;
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +26,7 @@ public abstract class AbstractTradingService {
     protected SingleCoinRatioSelectingService ratioSelectingService;
     protected double orderLotUSDSize;
 
-    protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new HashMap<>();
+    protected Map<Integer, Map<String, Double>> allPricesCache = new HashMap<>();
 
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
@@ -63,15 +61,15 @@ public abstract class AbstractTradingService {
     }
 
     protected void updateAllPricesCache() {
-        allPricesCache.remove(LocalDateTime.now().minusMinutes(40).truncatedTo(ChronoUnit.MINUTES));
-        allPricesCache.put(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES),
-                binanceApiProvider.getAllPrices().stream()
-                        .collect(Collectors.toMap(
-                                TickerPrice::getSymbol,
-                                tickerPrice -> Double.valueOf(tickerPrice.getPrice()))
-                        )
-        );
+        for (int i = 30; i >= 0; i--) {
+            allPricesCache.put(i + 1, allPricesCache.get(i));
+        }
+        Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()
+                .collect(Collectors.toMap(
+                        TickerPrice::getSymbol,
+                        tickerPrice -> Double.valueOf(tickerPrice.getPrice()))
+                );
+        allPricesCache.put(0, currentPrices);
     }
 
     protected abstract double getFreeBridgeCoinUSDBalance();
@@ -82,11 +80,11 @@ public abstract class AbstractTradingService {
         Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
         if (ratioParamsOptional.isPresent()) {
             RatioParams ratioParams = ratioParamsOptional.get();
-            LocalDateTime currentTruncatedLDT = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-            LocalDateTime oldTruncatedLDT = currentTruncatedLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
+            Integer currentPriceKey = 0;
+            Integer oldPriceKey = ratioParams.getDeltaMinuteInterval();
 
-            Map<String, Double> currentPrices = allPricesCache.get(currentTruncatedLDT);
-            Map<String, Double> oldPrices = allPricesCache.get(oldTruncatedLDT);
+            Map<String, Double> currentPrices = allPricesCache.get(currentPriceKey);
+            Map<String, Double> oldPrices = allPricesCache.get(oldPriceKey);
 
             if (oldPrices != null && oldPrices.containsKey(symbol)
                     && currentPrices != null && currentPrices.containsKey(symbol)) {

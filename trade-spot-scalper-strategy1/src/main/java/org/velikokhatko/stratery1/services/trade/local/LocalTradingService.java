@@ -8,12 +8,10 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +23,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     private ScheduledExecutorService scheduledExecutorService;
     private double bridgeDepositUSD = 500d;
-    private final Map<String, Hold> holdMap = new HashMap<>();
+    private final Map<String, Hold> holdMap = new ConcurrentHashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
@@ -44,7 +42,7 @@ public class LocalTradingService extends AbstractTradingService {
             Set<String> holdSymbols = holdMap.keySet();
             holdSymbols.forEach(holdSymbol -> {
                 Hold hold = holdMap.get(holdSymbol);
-                Optional<Double> currentPrice = getPrice(LocalDateTime.now(), holdSymbol);
+                Optional<Double> currentPrice = getPrice(0, holdSymbol);
                 currentPrice.ifPresent(price -> {
                     if (price >= hold.getExpectingPrice()) {
                         bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
@@ -58,9 +56,8 @@ public class LocalTradingService extends AbstractTradingService {
 
     @Override
     protected void openLongPosition(RatioParams ratioParams) {
-        LocalDateTime currentLDT = LocalDateTime.now();
-        Optional<Double> currentPrice = getPrice(currentLDT, ratioParams.getSymbol());
-        Optional<Double> oldPrice = getOldPrice(currentLDT, ratioParams);
+        Optional<Double> currentPrice = getPrice(0, ratioParams.getSymbol());
+        Optional<Double> oldPrice = getOldPrice(ratioParams);
         if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD > orderLotUSDSize) {
             Double buyingPrice = currentPrice.get();
             double moneyAmountBeforeFee = orderLotUSDSize / buyingPrice;
@@ -71,15 +68,15 @@ public class LocalTradingService extends AbstractTradingService {
         }
     }
 
-    private Optional<Double> getOldPrice(LocalDateTime currentLDT, RatioParams ratioParams) {
-        LocalDateTime oldLDT = currentLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
-        return getPrice(oldLDT, ratioParams.getSymbol());
+    private Optional<Double> getOldPrice(RatioParams ratioParams) {
+        Integer oldPriceKey = ratioParams.getDeltaMinuteInterval();
+        return getPrice(oldPriceKey, ratioParams.getSymbol());
     }
 
     private double countAllMoney() {
         double result = bridgeDepositUSD;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
-            Optional<Double> price = getPrice(LocalDateTime.now(), entry.getKey());
+            Optional<Double> price = getPrice(0, entry.getKey());
             if (price.isPresent()) {
                 result += entry.getValue().getMoneyAmount() * price.get();
             }
@@ -87,13 +84,12 @@ public class LocalTradingService extends AbstractTradingService {
         return result;
     }
 
-    private Optional<Double> getPrice(LocalDateTime ldt, String symbol) {
+    private Optional<Double> getPrice(Integer key, String symbol) {
         Map<String, Double> symbolPriceMap;
-        LocalDateTime ldtTruncated = ldt.truncatedTo(ChronoUnit.MINUTES);
-        if ((symbolPriceMap = allPricesCache.get(ldtTruncated)) != null) {
+        if ((symbolPriceMap = allPricesCache.get(key)) != null) {
             return Optional.ofNullable(symbolPriceMap.get(symbol));
         }
-        if (LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).equals(ldt)) {
+        if (key == 0) {
             return Optional.of(Double.parseDouble(binanceApiProvider.getPrice(symbol).getPrice()));
         }
         return Optional.empty();
