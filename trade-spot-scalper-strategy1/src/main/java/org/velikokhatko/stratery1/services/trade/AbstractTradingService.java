@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
@@ -18,7 +17,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@EnableAsync
 public abstract class AbstractTradingService {
 
     protected AbstractBinanceApiProvider binanceApiProvider;
