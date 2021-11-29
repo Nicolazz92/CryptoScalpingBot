@@ -45,6 +45,8 @@ public class LocalTradingService extends AbstractTradingService {
             holdSymbols.forEach(holdSymbol -> {
                 Hold hold = holdMap.get(holdSymbol);
                 Optional<Double> currentPrice = getPrice(LocalDateTime.now(), holdSymbol);
+                log.info("попытка закрытия: пара {}, текущ.цена: {}, ожид.цена: {}, можно закрыть: {}",
+                        holdSymbol, currentPrice.orElse(null), hold.getExpectingPrice(), currentPrice.orElse(0d) >= hold.getExpectingPrice());
                 currentPrice.ifPresent(price -> {
                     if (price >= hold.getExpectingPrice()) {
                         bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
@@ -53,7 +55,7 @@ public class LocalTradingService extends AbstractTradingService {
                     }
                 });
             });
-        }, 15, TimeUnit.SECONDS);
+        }, 30, TimeUnit.SECONDS);
     }
 
     @Override
