@@ -24,12 +24,12 @@ import static org.velikokhatko.stratery1.utils.Utils.minusFee;
 public class LocalTradingService extends AbstractTradingService {
 
     private ScheduledExecutorService scheduledExecutorService;
-    private double money = 150d;
+    private double bridgeDepositUSD = 160d;
     private final Map<String, Hold> holdMap = new HashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
-        return money;
+        return bridgeDepositUSD;
     }
 
     @Override
@@ -44,10 +44,10 @@ public class LocalTradingService extends AbstractTradingService {
             Set<String> holdSymbols = holdMap.keySet();
             holdSymbols.forEach(holdSymbol -> {
                 Hold hold = holdMap.get(holdSymbol);
-                Optional<Double> currentPrice = getPrice(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), holdSymbol);
+                Optional<Double> currentPrice = getPrice(LocalDateTime.now(), holdSymbol);
                 currentPrice.ifPresent(price -> {
                     if (price >= hold.getExpectingPrice()) {
-                        money += minusFee(hold.getMoneyAmount() / hold.getBuyingPrice() * price);
+                        bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
                         holdMap.remove(holdSymbol);
                         log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}", holdSymbol, hold, countAllMoney());
                     }
@@ -58,15 +58,15 @@ public class LocalTradingService extends AbstractTradingService {
 
     @Override
     protected void openLongPosition(RatioParams ratioParams) {
-        LocalDateTime currentLDT = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime currentLDT = LocalDateTime.now();
         Optional<Double> currentPrice = getPrice(currentLDT, ratioParams.getSymbol());
         Optional<Double> oldPrice = getOldPrice(currentLDT, ratioParams);
-        if (oldPrice.isPresent() && currentPrice.isPresent() && money > orderLotUSDSize) {
+        if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD > orderLotUSDSize) {
             Double buyingPrice = currentPrice.get();
             double moneyAmountBeforeFee = orderLotUSDSize / buyingPrice;
             Hold hold = new Hold(buyingPrice, oldPrice.get(), minusFee(moneyAmountBeforeFee));
             holdMap.put(ratioParams.getSymbol(), hold);
-            money -= moneyAmountBeforeFee * buyingPrice;
+            bridgeDepositUSD -= moneyAmountBeforeFee * buyingPrice;
             log.info("Открыта позиция на пару {}: {}\nВсего денег: {}", ratioParams.getSymbol(), hold, countAllMoney());
         }
     }
@@ -77,24 +77,26 @@ public class LocalTradingService extends AbstractTradingService {
     }
 
     private double countAllMoney() {
-        double result = money;
+        double result = bridgeDepositUSD;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
-//            Optional<Double> price = getPrice(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), entry.getKey());
-//            if (price.isPresent()) {
-//                result += entry.getValue().getMoneyAmount() * price.get();
-//            }
-            result += Double.parseDouble(binanceApiProvider.getPrice(entry.getKey()).getPrice());
+            Optional<Double> price = getPrice(LocalDateTime.now(), entry.getKey());
+            if (price.isPresent()) {
+                result += entry.getValue().getMoneyAmount() * price.get();
+            }
         }
         return result;
     }
 
-    private Optional<Double> getPrice(LocalDateTime currentLDT, String symbol) {
+    private Optional<Double> getPrice(LocalDateTime ldt, String symbol) {
         Map<String, Double> symbolPriceMap;
-        if ((symbolPriceMap = allPricesCache.get(currentLDT)) != null) {
+        LocalDateTime ldtTruncated = ldt.truncatedTo(ChronoUnit.MINUTES);
+        if ((symbolPriceMap = allPricesCache.get(ldtTruncated)) != null) {
             return Optional.ofNullable(symbolPriceMap.get(symbol));
-        } else {
-            return Optional.empty();
         }
+        if (LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).equals(ldt)) {
+            return Optional.of(Double.parseDouble(binanceApiProvider.getPrice(symbol).getPrice()));
+        }
+        return Optional.empty();
     }
 
     @Autowired
