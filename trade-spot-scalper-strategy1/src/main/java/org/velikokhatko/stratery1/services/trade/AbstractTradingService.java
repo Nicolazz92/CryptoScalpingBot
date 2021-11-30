@@ -4,7 +4,6 @@ import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
@@ -30,7 +29,6 @@ public abstract class AbstractTradingService {
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
      */
-    @Async
     @Scheduled(fixedRate = 60000)
     public void trade() {
         updateAllPricesCache();

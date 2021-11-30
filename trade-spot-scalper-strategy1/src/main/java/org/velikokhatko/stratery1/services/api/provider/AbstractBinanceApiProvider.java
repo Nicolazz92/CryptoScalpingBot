@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.account.AssetBalance;
 import com.binance.api.client.domain.general.ExchangeInfo;
 import com.binance.api.client.domain.market.TickerPrice;
+import com.binance.api.client.exception.BinanceApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,7 +100,12 @@ public abstract class AbstractBinanceApiProvider {
     }
 
     public List<TickerPrice> getAllPrices() {
-        return client.getAllPrices();
+        try {
+            return client.getAllPrices();
+        } catch (BinanceApiException e) {
+            log.error("Ошибка api: ", e);
+        }
+        return new ArrayList<>();
     }
 
     public TickerPrice getPrice(String symbol) {
