@@ -95,8 +95,8 @@ public class SingleCoinRatioSelectingService {
 
     private RatioParams review(String symbol, Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
         List<RatioParams> paramsReviews = new ArrayList<>();
-        for (int minuteInterval = 5; minuteInterval <= allPricesCacheSize; minuteInterval++) {
-            for (double deltaPercent = 0; deltaPercent <= 20; deltaPercent++) {
+        for (int minuteInterval = 3; minuteInterval <= allPricesCacheSize; minuteInterval++) {
+            for (double deltaPercent = 3; deltaPercent <= 20; deltaPercent++) {
                 final LocalDateTime freshLimit = LocalDateTime.now().plus(freshDuration);
                 final RatioParams paramsReview = new RatioParams(symbol, minuteInterval, deltaPercent, freshLimit);
                 final Double resultMoney = singleCoinRatioReviewService.process(marketIntervalMap, paramsReview);

@@ -20,6 +20,6 @@ public class AppConfig {
 
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
-        return Executors.newScheduledThreadPool(1);
+        return Executors.newScheduledThreadPool(4);
     }
 }
