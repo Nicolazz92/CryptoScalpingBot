@@ -12,8 +12,15 @@ import org.velikokhatko.stratery1.services.predictions.PredictionService;
 import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService;
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import static org.velikokhatko.stratery1.utils.Utils.truncate;
 
 @Slf4j
 public abstract class AbstractTradingService {
@@ -23,13 +30,13 @@ public abstract class AbstractTradingService {
     protected PredictionService predictionService;
     protected SingleCoinRatioSelectingService ratioSelectingService;
     protected double orderLotUSDSize;
-
-    protected Map<Integer, Map<String, Double>> allPricesCache = new HashMap<>();
+    private int allPricesCacheSize;
+    protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new ConcurrentHashMap<>();
 
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 * * * * *")
     public void trade() {
         updateAllPricesCache();
 
@@ -44,11 +51,10 @@ public abstract class AbstractTradingService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
-                    .peek(rp -> log.info("Условия для выставления ордера: {}", rp))
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
             if (ratioParamsPotentialOrders.isEmpty()) {
-                log.info("Не найдено условий для выставления ордеров");
+                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
             } else {
                 ratioParamsPotentialOrders.forEach(rp -> {
                     log.info("Готово к выставлению ордера: {}", rp);
@@ -58,16 +64,15 @@ public abstract class AbstractTradingService {
         }
     }
 
-    protected void updateAllPricesCache() {
-        for (int i = 30; i >= 0; i--) {
-            allPricesCache.put(i + 1, allPricesCache.get(i));
-        }
+    @Scheduled(cron = "0 * * * * *")
+    public void updateAllPricesCache() {
+        allPricesCache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
         Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()
                 .collect(Collectors.toMap(
                         TickerPrice::getSymbol,
                         tickerPrice -> Double.valueOf(tickerPrice.getPrice()))
                 );
-        allPricesCache.put(0, currentPrices);
+        allPricesCache.put(truncate(LocalDateTime.now()), currentPrices);
     }
 
     protected abstract double getFreeBridgeCoinUSDBalance();
@@ -78,8 +83,8 @@ public abstract class AbstractTradingService {
         Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
         if (ratioParamsOptional.isPresent()) {
             RatioParams ratioParams = ratioParamsOptional.get();
-            Integer currentPriceKey = 0;
-            Integer oldPriceKey = ratioParams.getDeltaMinuteInterval();
+            LocalDateTime currentPriceKey = truncate(LocalDateTime.now());
+            LocalDateTime oldPriceKey = truncate(LocalDateTime.now().minusMinutes(ratioParams.getDeltaMinuteInterval()));
 
             Map<String, Double> currentPrices = allPricesCache.get(currentPriceKey);
             Map<String, Double> oldPrices = allPricesCache.get(oldPriceKey);
@@ -105,6 +110,8 @@ public abstract class AbstractTradingService {
 
     abstract protected void openLongPosition(RatioParams ratioParams);
 
+    abstract protected double countAllMoney();
+
     @Autowired
     public void setBinanceApiProvider(AbstractBinanceApiProvider binanceApiProvider) {
         this.binanceApiProvider = binanceApiProvider;
@@ -129,5 +136,10 @@ public abstract class AbstractTradingService {
     public void setOrderLotUSDSize(String orderLotUSDSize) {
         Assert.hasText(orderLotUSDSize, "Не задан orderLotUSDSize");
         this.orderLotUSDSize = Double.parseDouble(orderLotUSDSize);
+    }
+
+    @Value("${allPricesCacheSize}")
+    public void setAllPricesCacheSize(int allPricesCacheSize) {
+        this.allPricesCacheSize = allPricesCacheSize;
     }
 }

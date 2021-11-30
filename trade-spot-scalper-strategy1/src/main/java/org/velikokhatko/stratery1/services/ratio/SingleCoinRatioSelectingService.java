@@ -30,6 +30,7 @@ public class SingleCoinRatioSelectingService {
     private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
     private final Set<String> ratioSelectProcessing = new HashSet<>();
     private double ratioSelectingPeriod;
+    private int allPricesCacheSize;
 
     public Optional<RatioParams> selectRatio(String symbol) {
         if (!ratioSelectProcessing.contains(symbol) && needToUpdateRatioParams(symbol)) {
@@ -94,7 +95,7 @@ public class SingleCoinRatioSelectingService {
 
     private RatioParams review(String symbol, Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
         List<RatioParams> paramsReviews = new ArrayList<>();
-        for (int minuteInterval = 5; minuteInterval <= 30; minuteInterval++) {
+        for (int minuteInterval = 5; minuteInterval <= allPricesCacheSize; minuteInterval++) {
             for (double deltaPercent = 0; deltaPercent <= 20; deltaPercent++) {
                 final LocalDateTime freshLimit = LocalDateTime.now().plus(freshDuration);
                 final RatioParams paramsReview = new RatioParams(symbol, minuteInterval, deltaPercent, freshLimit);
@@ -135,5 +136,10 @@ public class SingleCoinRatioSelectingService {
     @Value("${ratioSelectingPeriod}")
     public void setRatioSelectingPeriod(double ratioSelectingPeriod) {
         this.ratioSelectingPeriod = ratioSelectingPeriod;
+    }
+
+    @Value("${allPricesCacheSize}")
+    public void setAllPricesCacheSize(int allPricesCacheSize) {
+        this.allPricesCacheSize = allPricesCacheSize;
     }
 }

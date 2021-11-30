@@ -8,6 +8,7 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.velikokhatko.stratery1.utils.Utils.minusFee;
+import static org.velikokhatko.stratery1.utils.Utils.truncate;
 
 @Service
 @Slf4j
@@ -69,11 +71,11 @@ public class LocalTradingService extends AbstractTradingService {
     }
 
     private Optional<Double> getOldPrice(RatioParams ratioParams) {
-        Integer oldPriceKey = ratioParams.getDeltaMinuteInterval();
-        return getPrice(oldPriceKey, ratioParams.getSymbol());
+        Integer minusMinutes = ratioParams.getDeltaMinuteInterval();
+        return getPrice(minusMinutes, ratioParams.getSymbol());
     }
 
-    private double countAllMoney() {
+    protected double countAllMoney() {
         double result = bridgeDepositUSD;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
             Optional<Double> price = getPrice(0, entry.getKey());
@@ -84,12 +86,13 @@ public class LocalTradingService extends AbstractTradingService {
         return result;
     }
 
-    private Optional<Double> getPrice(Integer key, String symbol) {
+    private Optional<Double> getPrice(Integer minusMinutes, String symbol) {
         Map<String, Double> symbolPriceMap;
+        LocalDateTime key = truncate(LocalDateTime.now().minusMinutes(minusMinutes));
         if ((symbolPriceMap = allPricesCache.get(key)) != null) {
             return Optional.ofNullable(symbolPriceMap.get(symbol));
         }
-        if (key == 0) {
+        if (minusMinutes == 0) {
             return Optional.of(Double.parseDouble(binanceApiProvider.getPrice(symbol).getPrice()));
         }
         return Optional.empty();

@@ -4,6 +4,8 @@ import com.binance.api.client.domain.account.AssetBalance;
 import org.velikokhatko.stratery1.constants.Constants;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,5 +40,9 @@ public final class Utils {
      */
     public static double minusFee(double resultMoney) {
         return resultMoney / 1000 * 999;
+    }
+
+    public static LocalDateTime truncate(LocalDateTime ldt) {
+        return ldt.truncatedTo(ChronoUnit.MINUTES);
     }
 }
