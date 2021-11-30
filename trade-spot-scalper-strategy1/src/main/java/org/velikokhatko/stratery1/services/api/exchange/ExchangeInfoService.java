@@ -5,7 +5,6 @@ import com.binance.api.client.domain.general.SymbolStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
@@ -65,12 +64,6 @@ public class ExchangeInfoService {
         if (cache.isEmpty() && !symbols.isEmpty()) {
             log.error("Не удалось заполнить кэш, возможно, bridgeCoin задана с ошибкой");
         }
-    }
-
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void clearCache() {
-        cache.clear();
-        log.info(this.getClass().getName() + ": cache cleaned");
     }
 
     @Autowired

@@ -29,7 +29,7 @@ public class SingleCoinRatioSelectingService {
     private ExecutorService executorServiceFixedSize;
     private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
     private final Set<String> ratioSelectProcessing = new HashSet<>();
-    private double ratioSelectingPeriod;
+    private double ratioSelectingDaysPeriod;
     private int allPricesCacheSize;
 
     public Optional<RatioParams> selectRatio(String symbol) {
@@ -64,7 +64,7 @@ public class SingleCoinRatioSelectingService {
             return defaultRatioParams;
         }
 
-        Duration freshDuration = reachableFilesLinks.size() > ratioSelectingPeriod / 100 * 90
+        Duration freshDuration = reachableFilesLinks.size() > ratioSelectingDaysPeriod / 100 * 90
                 ? DURATION_FIVE_DAYS.plusMinutes(RandomUtils.nextLong(0, 240))
                 : DURATION_ONE_DAY.plusMinutes(RandomUtils.nextLong(0, 240));
 
@@ -83,7 +83,7 @@ public class SingleCoinRatioSelectingService {
 
     private List<String> getReachableFilesLinks(String symbol) {
         List<String> result = new ArrayList<>();
-        for (int minusDays = 1; minusDays < ratioSelectingPeriod; minusDays++) {
+        for (int minusDays = 1; minusDays < ratioSelectingDaysPeriod; minusDays++) {
             final String url = Utils.getKlinesZipURLBySymbol(symbol, minusDays);
             if (remoteFileExistsCheckingService.isFileExists(url)) {
                 result.add(url);
@@ -133,9 +133,9 @@ public class SingleCoinRatioSelectingService {
         this.executorServiceFixedSize = executorServiceFixedSize;
     }
 
-    @Value("${ratioSelectingPeriod}")
-    public void setRatioSelectingPeriod(double ratioSelectingPeriod) {
-        this.ratioSelectingPeriod = ratioSelectingPeriod;
+    @Value("${ratioSelectingDaysPeriod}")
+    public void setRatioSelectingDaysPeriod(double ratioSelectingDaysPeriod) {
+        this.ratioSelectingDaysPeriod = ratioSelectingDaysPeriod;
     }
 
     @Value("${allPricesCacheSize}")
