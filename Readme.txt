@@ -1,6 +1,8 @@
-docker rmi $(docker images)
+docker kill $(docker ps -q)
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -q)
 docker build -t "cryptoscalpingbot:Dockerfile" .
-docker run -d --name csb-master <image_id>
+docker run -d -t "cryptoscalpingbot:Dockerfile" --name csb-master
 
 
 2021-11-30 21:28:38.475  INFO 1 --- [pool-1-thread-1] .v.s.s.r.SingleCoinRatioSelectingService : При подборе коэффициентов для пары CHRBNB были выбраны коэффициенты RatioParams(symbol=CHRBNB, deltaMinuteInterval=30, deltaPercent=7.0, resultPercent=326.7627773596055, dealsCount=81, freshLimit=2021-12-05T23:24:37.637896)
