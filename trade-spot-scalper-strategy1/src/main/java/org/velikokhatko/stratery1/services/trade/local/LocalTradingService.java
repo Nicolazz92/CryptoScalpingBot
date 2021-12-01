@@ -1,5 +1,6 @@
 package org.velikokhatko.stratery1.services.trade.local;
 
+import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,10 +10,10 @@ import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +26,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     private ScheduledExecutorService scheduledExecutorService;
     private double bridgeDepositUSD = 500d;
-    private final Map<String, Hold> holdMap = new ConcurrentHashMap<>();
+    private final Map<String, Hold> holdMap = new HashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
@@ -89,11 +90,14 @@ public class LocalTradingService extends AbstractTradingService {
     private Optional<Double> getPrice(Integer minusMinutes, String symbol) {
         Map<String, Double> symbolPriceMap;
         LocalDateTime key = truncate(LocalDateTime.now().minusMinutes(minusMinutes));
-        if ((symbolPriceMap = allPricesCache.get(key)) != null) {
+        if ((symbolPriceMap = allPricesCache.get(key)) != null && symbolPriceMap.get(symbol) != null) {
             return Optional.ofNullable(symbolPriceMap.get(symbol));
         }
         if (minusMinutes == 0) {
-            return Optional.of(Double.parseDouble(binanceApiProvider.getPrice(symbol).getPrice()));
+            Optional<TickerPrice> priceOptional = binanceApiProvider.getPrice(symbol);
+            if (priceOptional.isPresent()) {
+                return Optional.of(Double.parseDouble(priceOptional.get().getPrice()));
+            }
         }
         return Optional.empty();
     }

@@ -14,6 +14,7 @@ import org.velikokhatko.stratery1.exceptions.TraderBotException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.velikokhatko.stratery1.constants.Constants.DOUBLE_FORMAT;
@@ -108,8 +109,13 @@ public abstract class AbstractBinanceApiProvider {
         return new ArrayList<>();
     }
 
-    public TickerPrice getPrice(String symbol) {
-        return client.getPrice(symbol);
+    public Optional<TickerPrice> getPrice(String symbol) {
+        try {
+            return Optional.ofNullable(client.getPrice(symbol));
+        } catch (BinanceApiException e) {
+            log.error("Ошибка api: ", e);
+        }
+        return Optional.empty();
     }
 
     private List<AssetBalance> getBalances() {

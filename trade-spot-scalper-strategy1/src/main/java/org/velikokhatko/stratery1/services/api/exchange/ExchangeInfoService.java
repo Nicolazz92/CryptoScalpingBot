@@ -10,11 +10,7 @@ import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class ExchangeInfoService {
 
-    private final Map<String, SymbolInfoShort> cache = new ConcurrentHashMap<>();
+    private final Map<String, SymbolInfoShort> cache = new HashMap<>();
     private AbstractBinanceApiProvider apiProvider;
     private ExecutorService executorServiceFixedSize;
     private ScheduledExecutorService scheduledExecutorService;
