@@ -39,18 +39,49 @@ public abstract class AbstractTradingService {
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
         if (availableOrderSlots > 0) {
-            List<RatioParams> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
-                    .filter(predictionService::canBuy)
-                    .filter(this::doesNotHolding)
-                    .filter(this::isProfitableFall)
+            Set<String> symbols = exchangeInfoService.getAllSymbolInfoShort().keySet();
+            if (symbols.isEmpty()) {
+                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
+                return;
+            }
+            symbols = symbols.stream().filter(predictionService::canBuy).collect(Collectors.toSet());
+            if (symbols.isEmpty()) {
+                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
+                return;
+            }
+            symbols = symbols.stream().filter(this::doesNotHolding).collect(Collectors.toSet());
+            if (symbols.isEmpty()) {
+                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
+                return;
+            }
+            symbols = symbols.stream().filter(this::isProfitableFall).collect(Collectors.toSet());
+            if (symbols.isEmpty()) {
+                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
+                return;
+            }
+            Set<RatioParams> ratioParamsPotentialOrders = symbols.stream()
                     .map(ratioSelectingService::selectRatio)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
                     .limit(availableOrderSlots)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
             if (ratioParamsPotentialOrders.isEmpty()) {
                 log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
+//            }
+//
+//            List<RatioParams> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
+//                    .filter(predictionService::canBuy)
+//                    .filter(this::doesNotHolding)
+//                    .filter(this::isProfitableFall)
+//                    .map(ratioSelectingService::selectRatio)
+//                    .filter(Optional::isPresent)
+//                    .map(Optional::get)
+//                    .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
+//                    .limit(availableOrderSlots)
+//                    .collect(Collectors.toList());
+//            if (ratioParamsPotentialOrders.isEmpty()) {
+//                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
             } else {
                 ratioParamsPotentialOrders.forEach(rp -> {
                     log.info("Готово к выставлению ордера: {}", rp);
@@ -60,7 +91,7 @@ public abstract class AbstractTradingService {
         }
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "2 * * * * *")
     public void updateAllPricesCache() {
         allPricesCache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
         Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()

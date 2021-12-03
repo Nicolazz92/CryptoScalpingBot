@@ -16,7 +16,7 @@ public class PredictionService {
 
     private final Map<String, Prediction> cache = new HashMap<>();
     private ScrappingService scrappingService;
-    private ExecutorService executorServiceFixedSize;
+    private ExecutorService executorService;
 
     /**
      * Пример: predictionService.canBuy("XRPBUSD");
@@ -27,7 +27,7 @@ public class PredictionService {
      */
     public boolean canBuy(String symbol) {
         if (!cache.containsKey(symbol) || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
-            executorServiceFixedSize.execute(() -> {
+            executorService.execute(() -> {
                 if (cache.containsKey(symbol)) {
                     return;
                 }
@@ -49,7 +49,7 @@ public class PredictionService {
     }
 
     @Autowired
-    public void setExecutorServiceFixedSize(ExecutorService executorServiceFixedSize) {
-        this.executorServiceFixedSize = executorServiceFixedSize;
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 }

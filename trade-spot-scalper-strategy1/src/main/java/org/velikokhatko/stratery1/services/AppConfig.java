@@ -7,19 +7,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Configuration
 @EnableScheduling
 public class AppConfig {
 
     @Bean
-    public ExecutorService executorServiceFixedSize(@Value("${threadPoolSize}") int threadPoolSize) {
-        return Executors.newFixedThreadPool(threadPoolSize);
-    }
-
-    @Bean
-    public ScheduledExecutorService scheduledExecutorService() {
-        return Executors.newScheduledThreadPool(4);
+    public ExecutorService scheduledExecutorService(@Value("${threadPoolSize}") int threadPoolSize) {
+        return Executors.newCachedThreadPool();
     }
 }

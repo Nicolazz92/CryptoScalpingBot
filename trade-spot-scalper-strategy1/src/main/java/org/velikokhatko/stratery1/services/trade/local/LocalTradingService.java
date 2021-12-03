@@ -2,20 +2,17 @@ package org.velikokhatko.stratery1.services.trade.local;
 
 import com.binance.api.client.domain.market.TickerPrice;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.ratio.model.Hold;
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static org.velikokhatko.stratery1.utils.Utils.minusFee;
 import static org.velikokhatko.stratery1.utils.Utils.truncate;
@@ -24,7 +21,6 @@ import static org.velikokhatko.stratery1.utils.Utils.truncate;
 @Slf4j
 public class LocalTradingService extends AbstractTradingService {
 
-    private ScheduledExecutorService scheduledExecutorService;
     private double bridgeDepositUSD = 500d;
     private final Map<String, Hold> holdMap = new HashMap<>();
 
@@ -38,23 +34,21 @@ public class LocalTradingService extends AbstractTradingService {
         return !holdMap.containsKey(s);
     }
 
-    @PostConstruct
+    @Scheduled(fixedRate = 30000)
     public void closeLongPositions() {
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-            updateAllPricesCache();
-            Set<String> holdSymbols = holdMap.keySet();
-            holdSymbols.forEach(holdSymbol -> {
-                Hold hold = holdMap.get(holdSymbol);
-                Optional<Double> currentPrice = getPrice(0, holdSymbol);
-                currentPrice.ifPresent(price -> {
-                    if (price >= hold.getExpectingPrice()) {
-                        bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
-                        holdMap.remove(holdSymbol);
-                        log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
-                    }
-                });
+        updateAllPricesCache();
+        Set<String> holdSymbols = holdMap.keySet();
+        holdSymbols.forEach(holdSymbol -> {
+            Hold hold = holdMap.get(holdSymbol);
+            Optional<Double> currentPrice = getPrice(0, holdSymbol);
+            currentPrice.ifPresent(price -> {
+                if (price >= hold.getExpectingPrice()) {
+                    bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
+                    holdMap.remove(holdSymbol);
+                    log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
+                }
             });
-        }, 1, 30, TimeUnit.SECONDS);
+        });
     }
 
     @Override
@@ -100,10 +94,5 @@ public class LocalTradingService extends AbstractTradingService {
             }
         }
         return Optional.empty();
-    }
-
-    @Autowired
-    public void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = scheduledExecutorService;
     }
 }
