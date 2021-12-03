@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableScheduling
@@ -14,6 +16,14 @@ public class AppConfig {
 
     @Bean
     public ExecutorService scheduledExecutorService(@Value("${threadPoolSize}") int threadPoolSize) {
-        return Executors.newCachedThreadPool();
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+                threadPoolSize,
+                threadPoolSize,
+                60,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>()
+        );
+        threadPoolExecutor.allowCoreThreadTimeOut(true);
+        return threadPoolExecutor;
     }
 }
