@@ -5,15 +5,13 @@ import com.binance.api.client.domain.general.SymbolStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,19 +20,18 @@ public class ExchangeInfoService {
 
     private final Map<String, SymbolInfoShort> cache = new HashMap<>();
     private AbstractBinanceApiProvider apiProvider;
-    private ExecutorService executorServiceFixedSize;
-    private ScheduledExecutorService scheduledExecutorService;
+    private ExecutorService executorService;
     private String bridgeCoin;
 
-    @PostConstruct
-    public void postConstruct() {
-        scheduledExecutorService.schedule(cache::clear, 15, TimeUnit.DAYS);
+    @Scheduled(cron = "@monthly")
+    public void clearCache() {
+        cache.clear();
     }
 
     public Optional<String> getBaseAsset(String symbol) {
         if (!cache.containsKey(symbol)) {
             log.error("Не получилось найти базовый актив для " + symbol);
-            executorServiceFixedSize.execute(this::warmUpCache);
+            executorService.execute(this::warmUpCache);
             return Optional.empty();
         }
         return Optional.ofNullable(cache.get(symbol).getBaseAsset());
@@ -42,7 +39,7 @@ public class ExchangeInfoService {
 
     public Map<String, SymbolInfoShort> getAllSymbolInfoShort() {
         if (cache.isEmpty()) {
-            executorServiceFixedSize.execute(this::warmUpCache);
+            executorService.execute(this::warmUpCache);
             return Collections.emptyMap();
         }
         return cache;
@@ -68,13 +65,8 @@ public class ExchangeInfoService {
     }
 
     @Autowired
-    public void setExecutorServiceFixedSize(ExecutorService executorServiceFixedSize) {
-        this.executorServiceFixedSize = executorServiceFixedSize;
-    }
-
-    @Autowired
-    public void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = scheduledExecutorService;
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Value("${bridgeCoin}")
