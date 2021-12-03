@@ -5,16 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
 public class PredictionService {
 
-    private final Map<String, Prediction> cache = new HashMap<>();
+    private final Map<String, Prediction> cache = new ConcurrentHashMap<>();
     private ScrappingService scrappingService;
     private ExecutorService executorService;
 

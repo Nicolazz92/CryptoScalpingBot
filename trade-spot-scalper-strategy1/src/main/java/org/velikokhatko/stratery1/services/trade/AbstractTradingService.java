@@ -13,7 +13,11 @@ import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.velikokhatko.stratery1.utils.Utils.truncate;
@@ -27,7 +31,7 @@ public abstract class AbstractTradingService {
     protected SingleCoinRatioSelectingService ratioSelectingService;
     protected double orderLotUSDSize;
     private int allPricesCacheSize;
-    protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new HashMap<>();
+    protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new ConcurrentHashMap<>();
 
     /**
      * ГЛАВНАЯ ФУНКЦИЯ

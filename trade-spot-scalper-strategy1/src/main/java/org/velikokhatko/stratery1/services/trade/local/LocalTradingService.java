@@ -9,10 +9,10 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.velikokhatko.stratery1.utils.Utils.minusFee;
 import static org.velikokhatko.stratery1.utils.Utils.truncate;
@@ -22,7 +22,7 @@ import static org.velikokhatko.stratery1.utils.Utils.truncate;
 public class LocalTradingService extends AbstractTradingService {
 
     private double bridgeDepositUSD = 500d;
-    private final Map<String, Hold> holdMap = new HashMap<>();
+    private final Map<String, Hold> holdMap = new ConcurrentHashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {

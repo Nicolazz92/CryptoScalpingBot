@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class ExchangeInfoService {
 
-    private final Map<String, SymbolInfoShort> cache = new HashMap<>();
+    private final Map<String, SymbolInfoShort> cache = new ConcurrentHashMap<>();
     private AbstractBinanceApiProvider apiProvider;
     private ExecutorService executorService;
     private String bridgeCoin;
