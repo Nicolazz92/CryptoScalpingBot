@@ -40,8 +40,9 @@ public class SingleCoinRatioSelectingService {
                 if (cache.containsKey(symbol)) {
                     return;
                 }
-                RatioParams ratioParams = _selectRatio(symbol);
-                cache.put(symbol, ratioParams);
+                _selectRatio(symbol).ifPresent(params -> {
+                    cache.put(symbol, params);
+                });
                 ratioSelectProcessing.remove(symbol);
             });
             return Optional.empty();
@@ -53,7 +54,7 @@ public class SingleCoinRatioSelectingService {
         return !cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now());
     }
 
-    private RatioParams _selectRatio(String symbol) {
+    private Optional<RatioParams> _selectRatio(String symbol) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
         final RatioParams defaultRatioParams = new RatioParams(symbol, 15, 10d,
                 LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 240)));
@@ -61,7 +62,7 @@ public class SingleCoinRatioSelectingService {
         if (reachableFilesLinks.isEmpty()) {
             log.warn("При подборе коэффициентов для пары {} не нашлось доступных ссылок на исторические данные", symbol);
             log.warn("Для пары {} были выбраны дефолтные коэффициенты {}", symbol, defaultRatioParams);
-            return defaultRatioParams;
+            return Optional.of(defaultRatioParams);
         }
 
         Duration freshDuration = reachableFilesLinks.size() > ratioSelectingDaysPeriod / 100 * 90
@@ -73,12 +74,12 @@ public class SingleCoinRatioSelectingService {
         if (marketIntervalMap.isEmpty()) {
             log.warn("При подборе коэффициентов для пары {} после парсинга исторических данных коллекция оказалась пустой", symbol);
             log.warn("Для пары {} были выбраны дефолтные коэффициенты {}", symbol, defaultRatioParams);
-            return defaultRatioParams;
+            return Optional.of(defaultRatioParams);
         }
 
         final RatioParams result = review(symbol, marketIntervalMap, freshDuration);
         log.info("При подборе коэффициентов для пары {} были выбраны коэффициенты {}", symbol, result);
-        return result;
+        return Optional.ofNullable(result);
     }
 
     private List<String> getReachableFilesLinks(String symbol) {
@@ -105,12 +106,27 @@ public class SingleCoinRatioSelectingService {
             }
         }
 
-        double maxCalculateEffectivity = paramsReviews.stream()
-                .max(Comparator.comparing(RatioParams::calculateEffectivity))
-                .orElse(new RatioParams()).calculateEffectivity();
+//        double maxCalculateEffectivity = paramsReviews.stream()
+//                .max(Comparator.comparing(RatioParams::calculateEffectivity))
+//                .orElse(new RatioParams()).calculateEffectivity();
+//        return paramsReviews.stream()
+//                .filter(rp -> rp.calculateEffectivity() == maxCalculateEffectivity)
+//                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElseThrow();
+        final RatioParams maxPercentRP = paramsReviews.stream()
+                .max(Comparator.comparing(RatioParams::getResultPercent)).orElse(null);
+        if (maxPercentRP == null) {
+            return null;
+        }
+        final RatioParams minDeltaMinuteInterval = paramsReviews.stream()
+                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
+                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElse(null);
+        if (minDeltaMinuteInterval == null) {
+            return null;
+        }
         return paramsReviews.stream()
-                .filter(rp -> rp.calculateEffectivity() == maxCalculateEffectivity)
-                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElseThrow();
+                .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
+                .filter(pr -> minDeltaMinuteInterval.getDeltaMinuteInterval().equals(pr.getDeltaMinuteInterval()))
+                .min(Comparator.comparing(RatioParams::getDeltaPercent)).orElse(null);
     }
 
     @Autowired

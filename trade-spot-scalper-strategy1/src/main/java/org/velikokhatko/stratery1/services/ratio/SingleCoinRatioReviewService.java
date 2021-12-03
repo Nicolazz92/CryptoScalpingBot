@@ -75,6 +75,6 @@ public class SingleCoinRatioReviewService {
 
     private boolean isPriceFallingDeepEnough(RatioParams ratioParams, double currentPrice, double oldPrice) {
         return oldPrice > currentPrice
-                && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
+                && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
     }
 }
