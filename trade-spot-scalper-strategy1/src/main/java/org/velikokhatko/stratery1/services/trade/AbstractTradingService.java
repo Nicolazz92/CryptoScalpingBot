@@ -125,7 +125,7 @@ public abstract class AbstractTradingService {
                 Double oldPrice = oldPrices.get(symbol);
                 Double currentPrice = currentPrices.get(symbol);
                 return oldPrice > currentPrice
-                        && 100d - (currentPrice / oldPrice) * 100 <= ratioParams.getDeltaPercent();
+                        && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
             } else {
                 if (currentPrices == null || currentPrices.get(symbol) == null) {
                     log.warn("Не найдены текущие значения цены для символа {} по ключу {}", symbol, currentPriceKey);
