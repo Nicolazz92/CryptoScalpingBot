@@ -1,6 +1,10 @@
 #Where we start
 FROM openjdk:14-alpine AS builder
 
+#Set timezome
+RUN apk add --no-cache tzdata
+ENV TZ Europe/Moscow
+
 #Get APK up to date
 RUN apk update && apk upgrade
 
@@ -10,12 +14,12 @@ RUN apk add maven
 #Git
 RUN apk add git
 RUN mkdir /CryptoScalpingBot
-RUN git clone https://nicolazz92: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@github.com/Nicolazz92/CryptoScalpingBot.git /CryptoScalpingBot
+RUN git clone -b master https://nicolazz92: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@github.com/Nicolazz92/CryptoScalpingBot.git /CryptoScalpingBot
 
 #Build
 RUN mvn -f /CryptoScalpingBot clean install -DskipTests=true
 
-# Build release image
+#Build release image
 FROM openjdk:14-alpine
 
 #Copy result

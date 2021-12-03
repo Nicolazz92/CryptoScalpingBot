@@ -30,7 +30,7 @@ public abstract class AbstractTradingService {
     protected PredictionService predictionService;
     protected SingleCoinRatioSelectingService ratioSelectingService;
     protected double orderLotUSDSize;
-    private int allPricesCacheSize;
+    protected int allPricesCacheSize;
     protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new ConcurrentHashMap<>();
 
     /**
@@ -38,7 +38,7 @@ public abstract class AbstractTradingService {
      */
     @Scheduled(cron = "10 * * * * *")
     public void trade() {
-        updateAllPricesCache();
+        updateAllPricesCache(allPricesCache);
 
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
@@ -95,15 +95,14 @@ public abstract class AbstractTradingService {
         }
     }
 
-    @Scheduled(cron = "2 * * * * *")
-    public void updateAllPricesCache() {
-        allPricesCache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
+    protected void updateAllPricesCache(Map<LocalDateTime, Map<String, Double>> cache) {
+        cache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
         Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()
                 .collect(Collectors.toMap(
                         TickerPrice::getSymbol,
                         tickerPrice -> Double.valueOf(tickerPrice.getPrice()))
                 );
-        allPricesCache.put(truncate(LocalDateTime.now()), currentPrices);
+        cache.put(truncate(LocalDateTime.now()), currentPrices);
     }
 
     protected abstract double getFreeBridgeCoinUSDBalance();
