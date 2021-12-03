@@ -18,7 +18,7 @@ public class AppConfig {
     public ExecutorService scheduledExecutorService(@Value("${threadPoolSize}") int threadPoolSize) {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                 threadPoolSize,
-                threadPoolSize,
+                threadPoolSize * 3,
                 60,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>()
