@@ -40,7 +40,7 @@ public class LocalTradingService extends AbstractTradingService {
         return !holdMap.containsKey(s);
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedDelay = 1000)
     public void closeLongPositions() {
         updateAllPricesCache(allPricesLocalCache);
 
@@ -63,6 +63,7 @@ public class LocalTradingService extends AbstractTradingService {
     protected void openLongPosition(RatioParams ratioParams) {
         Optional<Double> currentPrice = getPrice(0, ratioParams.getSymbol());
         Optional<Double> oldPrice = getOldPrice(ratioParams);
+        log.info("1ldclnanbrtjpf,.re");
         if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD.get() > orderLotUSDSize) {
             Double buyingPrice = currentPrice.get();
             double moneyAmountBeforeFee = orderLotUSDSize / buyingPrice;
@@ -70,8 +71,9 @@ public class LocalTradingService extends AbstractTradingService {
             holdMap.put(ratioParams.getSymbol(), hold);
             bridgeDepositUSD.set(bridgeDepositUSD.get() - moneyAmountBeforeFee * buyingPrice);
             log.info("Открыта позиция на пару {}: {}\nВсего денег: {}$", ratioParams.getSymbol(), hold, countAllMoney());
-            log.info("ldclnanbrtjpf,.re");
+            log.info("2ldclnanbrtjpf,.re");
         }
+        log.info("3ldclnanbrtjpf,.re");
     }
 
     private Optional<Double> getOldPrice(RatioParams ratioParams) {
