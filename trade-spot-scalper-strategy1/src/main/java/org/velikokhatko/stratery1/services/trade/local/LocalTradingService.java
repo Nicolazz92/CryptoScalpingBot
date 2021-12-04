@@ -42,8 +42,10 @@ public class LocalTradingService extends AbstractTradingService {
 
     @Scheduled(fixedDelay = 1000)
     public void closeLongPositions() {
+        log.info("1dsfdgkjlnmp[s");
         updateAllPricesCache(allPricesLocalCache);
 
+        log.info("2dsfdgkjlnmp[s");
         Set<String> holdSymbols = holdMap.keySet();
         for (String holdSymbol : holdSymbols) {
             Hold hold = holdMap.get(holdSymbol);
@@ -53,7 +55,7 @@ public class LocalTradingService extends AbstractTradingService {
                     bridgeDepositUSD.set(bridgeDepositUSD.get() + minusFee(hold.getMoneyAmount() * price));
                     holdMap.remove(holdSymbol);
                     log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
-                    log.info("dsfdgkjlnmp[s");
+                    log.info("3dsfdgkjlnmp[s");
                 }
             });
         }
@@ -84,6 +86,7 @@ public class LocalTradingService extends AbstractTradingService {
     }
 
     protected double countAllMoney() {
+        log.info("1jdskldfskjlf");
         double result = bridgeDepositUSD.get();
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
             Optional<Double> price = getPrice(0, entry.getKey());
@@ -91,22 +94,26 @@ public class LocalTradingService extends AbstractTradingService {
                 result += entry.getValue().getMoneyAmount() * price.get();
             }
         }
-        log.info("jdskldfskjlf");
+        log.info("2jdskldfskjlf");
         return result;
     }
 
     private Optional<Double> getPrice(Integer minusMinutes, String symbol) {
+        log.info("1kljdslfsl;dfnd,.f");
         Map<String, Double> symbolPriceMap;
         LocalDateTime key = truncate(LocalDateTime.now().minusMinutes(minusMinutes));
         if ((symbolPriceMap = allPricesLocalCache.get(key)) != null && symbolPriceMap.get(symbol) != null) {
+            log.info("2kljdslfsl;dfnd,.f");
             return Optional.ofNullable(symbolPriceMap.get(symbol));
         }
         if (minusMinutes == 0) {
             Optional<TickerPrice> priceOptional = binanceApiProvider.getPrice(symbol);
             if (priceOptional.isPresent()) {
+                log.info("3kljdslfsl;dfnd,.f");
                 return Optional.of(Double.parseDouble(priceOptional.get().getPrice()));
             }
         }
+        log.info("4kljdslfsl;dfnd,.f");
         return Optional.empty();
     }
 }

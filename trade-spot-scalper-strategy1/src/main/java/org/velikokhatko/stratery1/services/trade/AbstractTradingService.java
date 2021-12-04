@@ -37,11 +37,14 @@ public abstract class AbstractTradingService {
      */
     @Scheduled(cron = "*/1 * * * * *")
     public void trade() {
+        log.info("1efjfondkskwmkdlsmm");
         updateAllPricesCache(allPricesCache);
 
+        log.info("2efjfondkskwmkdlsmm");
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
         if (availableOrderSlots > 0) {
+            log.info("3efjfondkskwmkdlsmm");
             List<RatioParams> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
                     .filter(predictionService::canBuy)
                     .filter(this::doesNotHolding)
@@ -52,6 +55,7 @@ public abstract class AbstractTradingService {
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
+            log.info("4efjfondkskwmkdlsmm");
             if (ratioParamsPotentialOrders.isEmpty()) {
                 log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
             } else {
@@ -61,10 +65,12 @@ public abstract class AbstractTradingService {
                     log.info("bdsgdsrnmeklf");
                 }
             }
+            log.info("5efjfondkskwmkdlsmm");
         }
     }
 
     protected void updateAllPricesCache(Map<LocalDateTime, Map<String, Double>> cache) {
+        log.info("1owejndvsmsdfkjfes");
         cache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
         Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()
                 .collect(Collectors.toMap(
@@ -72,6 +78,7 @@ public abstract class AbstractTradingService {
                         tickerPrice -> Double.valueOf(tickerPrice.getPrice()))
                 );
         cache.put(truncate(LocalDateTime.now()), currentPrices);
+        log.info("2owejndvsmsdfkjfes");
     }
 
     protected abstract double getFreeBridgeCoinUSDBalance();
@@ -79,6 +86,7 @@ public abstract class AbstractTradingService {
     abstract protected boolean doesNotHolding(String s);
 
     private boolean isProfitableFall(String symbol) {
+        log.info("1rsdksdjkdskjs");
         Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
         if (ratioParamsOptional.isPresent()) {
             RatioParams ratioParams = ratioParamsOptional.get();
@@ -88,10 +96,12 @@ public abstract class AbstractTradingService {
             Map<String, Double> currentPrices = allPricesCache.get(currentPriceKey);
             Map<String, Double> oldPrices = allPricesCache.get(oldPriceKey);
 
+            log.info("2rsdksdjkdskjs");
             if (oldPrices != null && oldPrices.get(symbol) != null
                     && currentPrices != null && currentPrices.get(symbol) != null) {
                 Double oldPrice = oldPrices.get(symbol);
                 Double currentPrice = currentPrices.get(symbol);
+                log.info("3rsdksdjkdskjs");
                 return oldPrice > currentPrice
                         && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
             } else {
@@ -104,6 +114,7 @@ public abstract class AbstractTradingService {
             }
         }
 
+        log.info("4rsdksdjkdskjs");
         return false;
     }
 
