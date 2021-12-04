@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class AppConfig {
 
     @Bean
-    public ExecutorService scheduledExecutorService(@Value("${threadPoolSize}") int threadPoolSize) {
+    public ExecutorService executorService(@Value("${threadPoolSize}") int threadPoolSize) {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                 threadPoolSize,
                 threadPoolSize * 3,

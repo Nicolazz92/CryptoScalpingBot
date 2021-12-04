@@ -13,11 +13,9 @@ import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static org.velikokhatko.stratery1.utils.Utils.truncate;
@@ -29,6 +27,7 @@ public abstract class AbstractTradingService {
     protected ExchangeInfoService exchangeInfoService;
     protected PredictionService predictionService;
     protected SingleCoinRatioSelectingService ratioSelectingService;
+    private ExecutorService executorService;
     protected double orderLotUSDSize;
     protected int allPricesCacheSize;
     protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new ConcurrentHashMap<>();
@@ -63,13 +62,13 @@ public abstract class AbstractTradingService {
                 log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
                 return;
             }
-            Set<RatioParams> ratioParamsPotentialOrders = symbols.stream()
+            List<RatioParams> ratioParamsPotentialOrders = symbols.stream()
                     .map(ratioSelectingService::selectRatio)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
                     .limit(availableOrderSlots)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
             if (ratioParamsPotentialOrders.isEmpty()) {
                 log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
 //            }
@@ -87,10 +86,11 @@ public abstract class AbstractTradingService {
 //            if (ratioParamsPotentialOrders.isEmpty()) {
 //                log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
             } else {
-                ratioParamsPotentialOrders.forEach(rp -> {
+                for (int i = 0; i < ratioParamsPotentialOrders.size(); i++) {
+                    RatioParams rp = ratioParamsPotentialOrders.get(i);
                     log.info("Готово к выставлению ордера: {}", rp);
-                    openLongPosition(rp);
-                });
+                    executorService.execute(() -> openLongPosition(rp));
+                }
             }
         }
     }
@@ -160,6 +160,11 @@ public abstract class AbstractTradingService {
     @Autowired
     public void setRatioSelectingService(SingleCoinRatioSelectingService ratioSelectingService) {
         this.ratioSelectingService = ratioSelectingService;
+    }
+
+    @Autowired
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Value("${orderLotUSDSize}")
