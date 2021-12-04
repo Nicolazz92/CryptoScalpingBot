@@ -9,6 +9,7 @@ import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +31,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
+        log.info("pojsdfbnmwe");
         return bridgeDepositUSD.get();
     }
 
@@ -51,6 +53,7 @@ public class LocalTradingService extends AbstractTradingService {
                     bridgeDepositUSD.set(bridgeDepositUSD.get() + minusFee(hold.getMoneyAmount() * price));
                     holdMap.remove(holdSymbol);
                     log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
+                    log.info("dsfdgkjlnmp[s");
                 }
             });
         }
@@ -67,12 +70,15 @@ public class LocalTradingService extends AbstractTradingService {
             holdMap.put(ratioParams.getSymbol(), hold);
             bridgeDepositUSD.set(bridgeDepositUSD.get() - moneyAmountBeforeFee * buyingPrice);
             log.info("Открыта позиция на пару {}: {}\nВсего денег: {}$", ratioParams.getSymbol(), hold, countAllMoney());
+            log.info("ldclnanbrtjpf,.re");
         }
     }
 
     private Optional<Double> getOldPrice(RatioParams ratioParams) {
         Integer minusMinutes = ratioParams.getDeltaMinuteInterval();
-        return getPrice(minusMinutes, ratioParams.getSymbol());
+        Optional<Double> price = getPrice(minusMinutes, ratioParams.getSymbol());
+        log.info("sdjdgdfg,meljsfk");
+        return price;
     }
 
     protected double countAllMoney() {
@@ -83,6 +89,7 @@ public class LocalTradingService extends AbstractTradingService {
                 result += entry.getValue().getMoneyAmount() * price.get();
             }
         }
+        log.info("jdskldfskjlf");
         return result;
     }
 
