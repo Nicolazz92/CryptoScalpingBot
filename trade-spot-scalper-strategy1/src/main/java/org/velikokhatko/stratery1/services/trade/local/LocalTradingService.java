@@ -25,14 +25,14 @@ import static org.velikokhatko.stratery1.utils.Utils.truncate;
 @Slf4j
 public class LocalTradingService extends AbstractTradingService {
 
-    private final AtomicReference<Double> bridgeDepositUSD = new AtomicReference<>(500d);
+    private double bridgeDepositUSD = 500d;
     private final Map<String, Hold> holdMap = new ConcurrentHashMap<>();
     private final Map<LocalDateTime, Map<String, Double>> allPricesLocalCache = new ConcurrentHashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
         log.info("pojsdfbnmwe");
-        return bridgeDepositUSD.get();
+        return bridgeDepositUSD;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class LocalTradingService extends AbstractTradingService {
             Optional<Double> currentPrice = getPrice(0, holdSymbol);
             currentPrice.ifPresent(price -> {
                 if (price >= hold.getExpectingPrice()) {
-                    bridgeDepositUSD.set(bridgeDepositUSD.get() + minusFee(hold.getMoneyAmount() * price));
+                    bridgeDepositUSD += minusFee(hold.getMoneyAmount() * price);
                     holdMap.remove(holdSymbol);
                     log.info("Закрыта позиция на пару {}: {}\nВсего денег: {}$", holdSymbol, hold, countAllMoney());
                     log.info("3dsfdgkjlnmp[s");
@@ -66,12 +66,12 @@ public class LocalTradingService extends AbstractTradingService {
         Optional<Double> currentPrice = getPrice(0, ratioParams.getSymbol());
         Optional<Double> oldPrice = getOldPrice(ratioParams);
         log.info("1ldclnanbrtjpf,.re");
-        if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD.get() > orderLotUSDSize) {
+        if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD > orderLotUSDSize) {
             Double buyingPrice = currentPrice.get();
             double moneyAmountBeforeFee = orderLotUSDSize / buyingPrice;
             Hold hold = new Hold(buyingPrice, oldPrice.get(), minusFee(moneyAmountBeforeFee));
             holdMap.put(ratioParams.getSymbol(), hold);
-            bridgeDepositUSD.set(bridgeDepositUSD.get() - moneyAmountBeforeFee * buyingPrice);
+            bridgeDepositUSD -= moneyAmountBeforeFee * buyingPrice;
             log.info("Открыта позиция на пару {}: {}\nВсего денег: {}$", ratioParams.getSymbol(), hold, countAllMoney());
             log.info("2ldclnanbrtjpf,.re");
         }
@@ -87,7 +87,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     protected double countAllMoney() {
         log.info("1jdskldfskjlf");
-        double result = bridgeDepositUSD.get();
+        double result = bridgeDepositUSD;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
             Optional<Double> price = getPrice(0, entry.getKey());
             if (price.isPresent()) {
