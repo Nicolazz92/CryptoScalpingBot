@@ -35,7 +35,7 @@ public abstract class AbstractTradingService {
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
      */
-    @Scheduled(cron = "*/1 * * * * *")
+    @Scheduled(cron = "10 * * * * *")
     public void trade() {
         log.info("1efjfondkskwmkdlsmm");
         updateAllPricesCache(allPricesCache);

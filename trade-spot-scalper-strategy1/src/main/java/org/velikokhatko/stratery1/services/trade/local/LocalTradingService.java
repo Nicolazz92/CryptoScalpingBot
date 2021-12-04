@@ -40,7 +40,7 @@ public class LocalTradingService extends AbstractTradingService {
         return !holdMap.containsKey(s);
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 30000)
     public void closeLongPositions() {
         log.info("1dsfdgkjlnmp[s");
         updateAllPricesCache(allPricesLocalCache);
