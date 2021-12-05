@@ -16,6 +16,9 @@
     <properties>
         <java.version>14</java.version>
         <binance-api-client.version>1.0.1</binance-api-client.version>
+        <telegrambots.version>5.4.0.1</telegrambots.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <opencsv.version>5.5.2</opencsv.version>
     </properties>
     <dependencies>
         <dependency>
@@ -37,7 +40,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.4</version>
+            <version>${opencsv.version}</version>
         </dependency>
 
         <dependency>
@@ -48,7 +51,12 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.1</version>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots</artifactId>
+            <version>${telegrambots.version}</version>
         </dependency>
     </dependencies>
 

@@ -120,7 +120,7 @@ public abstract class AbstractTradingService {
 
     abstract protected void openLongPosition(RatioParams ratioParams);
 
-    abstract protected double countAllMoney();
+    abstract public double countAllMoney();
 
     @Autowired
     public void setBinanceApiProvider(AbstractBinanceApiProvider binanceApiProvider) {

@@ -85,7 +85,7 @@ public class LocalTradingService extends AbstractTradingService {
         return price;
     }
 
-    protected double countAllMoney() {
+    public double countAllMoney() {
         log.info("1jdskldfskjlf");
         double result = bridgeDepositUSD;
         for (Map.Entry<String, Hold> entry : holdMap.entrySet()) {
