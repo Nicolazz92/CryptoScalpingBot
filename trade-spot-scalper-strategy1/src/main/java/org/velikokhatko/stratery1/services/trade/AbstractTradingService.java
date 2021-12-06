@@ -64,8 +64,8 @@ public abstract class AbstractTradingService {
             } else {
                 for (RatioParams rp : ratioParamsPotentialOrders) {
                     log.info("Готово к выставлению ордера: {}", rp);
-//                    executorService.execute(() -> openLongPosition(rp));
-                    openLongPosition(rp);
+                    executorService.execute(() -> openLongPosition(rp));
+//                    openLongPosition(rp);
                     log.info("bdsgdsrnmeklf");
                 }
             }
