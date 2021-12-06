@@ -19,8 +19,8 @@ public class AppConfig {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                 threadPoolSize,
                 threadPoolSize * 3,
-                60,
-                TimeUnit.SECONDS,
+                5,
+                TimeUnit.MINUTES,
                 new LinkedBlockingQueue<>()
         );
         threadPoolExecutor.allowCoreThreadTimeOut(true);

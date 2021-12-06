@@ -13,7 +13,10 @@ import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -61,7 +64,8 @@ public abstract class AbstractTradingService {
             } else {
                 for (RatioParams rp : ratioParamsPotentialOrders) {
                     log.info("Готово к выставлению ордера: {}", rp);
-                    executorService.execute(() -> openLongPosition(rp));
+//                    executorService.execute(() -> openLongPosition(rp));
+                    openLongPosition(rp);
                     log.info("bdsgdsrnmeklf");
                 }
             }
@@ -102,8 +106,10 @@ public abstract class AbstractTradingService {
                 Double oldPrice = oldPrices.get(symbol);
                 Double currentPrice = currentPrices.get(symbol);
                 log.info("3rsdksdjkdskjs");
-                return oldPrice > currentPrice
-                        && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
+//                return oldPrice > currentPrice
+//                        && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
+                //TODO убрать эту хрень после победы над дедлоками
+                return true;
             } else {
                 if (currentPrices == null || currentPrices.get(symbol) == null) {
                     log.warn("Не найдены текущие значения цены для символа {} по ключу {}", symbol, currentPriceKey);
