@@ -27,4 +27,4 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 #Define how to start
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=production", "trade-spot-scalper-strategy1-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=production,telegram", "trade-spot-scalper-strategy1-0.0.1-SNAPSHOT.jar"]
