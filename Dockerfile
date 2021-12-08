@@ -1,10 +1,6 @@
 #Where we start
 FROM openjdk:14-alpine AS builder
 
-#Set timezome
-RUN apk add --no-cache tzdata
-ENV TZ Europe/Moscow
-
 #Get APK up to date
 RUN apk update && apk upgrade
 
