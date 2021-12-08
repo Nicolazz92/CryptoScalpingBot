@@ -13,6 +13,6 @@ public final class Prediction {
 
     public Prediction(boolean canBuy, int predictionHoursTTL) {
         this.canBuy = canBuy;
-        this.freshLimit = LocalDateTime.now().plusHours(predictionHoursTTL).plusMinutes(RandomUtils.nextLong(0, 240));
+        this.freshLimit = LocalDateTime.now().plusHours(predictionHoursTTL).plusMinutes(RandomUtils.nextLong(0, 60));
     }
 }

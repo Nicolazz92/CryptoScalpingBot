@@ -57,7 +57,7 @@ public class SingleCoinRatioSelectingService {
     private Optional<RatioParams> _selectRatio(String symbol) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
         final RatioParams defaultRatioParams = new RatioParams(symbol, 15, 10d,
-                LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 240)));
+                LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 60)));
 
         if (reachableFilesLinks.isEmpty()) {
             log.warn("При подборе коэффициентов для пары {} не нашлось доступных ссылок на исторические данные", symbol);
@@ -66,8 +66,8 @@ public class SingleCoinRatioSelectingService {
         }
 
         Duration freshDuration = reachableFilesLinks.size() > ratioSelectingDaysPeriod / 100 * 90
-                ? DURATION_FIVE_DAYS.plusMinutes(RandomUtils.nextLong(0, 240))
-                : DURATION_ONE_DAY.plusMinutes(RandomUtils.nextLong(0, 240));
+                ? DURATION_FIVE_DAYS.plusMinutes(RandomUtils.nextLong(0, 60))
+                : DURATION_ONE_DAY.plusMinutes(RandomUtils.nextLong(0, 60));
 
         Map<LocalDateTime, MarketInterval> marketIntervalMap = marketingIntervalsObtainingService
                 .obtainCsvIntervals(reachableFilesLinks);
