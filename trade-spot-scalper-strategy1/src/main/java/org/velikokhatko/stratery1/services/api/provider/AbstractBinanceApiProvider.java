@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.constants.UsdStablecoins;
-import org.velikokhatko.stratery1.exceptions.TraderBotException;
+import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public abstract class AbstractBinanceApiProvider {
                 } else {
                     String usdPriceString = allPrices.stream()
                             .filter(tickerPrice -> tickerPrice.getSymbol().equals(asset + UsdStablecoins.BUSD.name()))
-                            .findAny().orElseThrow(() -> new TraderBotException("Не получилось узнать $ курс валюты " + asset))
+                            .findAny().orElseThrow(() -> new TraderBotRuntimeException("Не получилось узнать $ курс валюты " + asset))
                             .getPrice();
                     usdPrice = Double.parseDouble(usdPriceString);
                 }
@@ -92,7 +92,7 @@ public abstract class AbstractBinanceApiProvider {
                     assetBalanceListToString(resultAsUSD),
                     "Full USD amount: " + DOUBLE_FORMAT.format(fullAmountUSD),
                     "Bridge coin current amount: " + currentBridgeCoinBalance + bridgeCoin);
-        } catch (TraderBotException e) {
+        } catch (TraderBotRuntimeException e) {
             log.error(e.getMessage());
             return StringUtils.joinWith("\n",
                     "Coin balance: ", assetBalanceListToString(balances),

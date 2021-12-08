@@ -3,6 +3,7 @@ package org.velikokhatko.stratery1.services.predictions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -26,7 +27,11 @@ public class PredictionService {
      * @return можно ли покупать
      */
     public boolean canBuy(String symbol) {
+        if (symbol == null) {
+            throw new TraderBotRuntimeException("symbol is null");
+        }
         if (!cache.containsKey(symbol) || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
+            cache.remove(symbol);
             executorService.execute(() -> {
                 Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
                 predictionOptional.ifPresent(prediction -> {

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
 import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
 import org.velikokhatko.stratery1.utils.Utils;
@@ -33,6 +34,9 @@ public class SingleCoinRatioSelectingService {
     private int allPricesCacheSize;
 
     public Optional<RatioParams> selectRatio(String symbol) {
+        if (symbol == null) {
+            throw new TraderBotRuntimeException("symbol is null");
+        }
         if (!ratioSelectProcessing.contains(symbol) && needToUpdateRatioParams(symbol)) {
             //кладем в очередь задачу на заполнение кэша
             executorService.execute(() -> {

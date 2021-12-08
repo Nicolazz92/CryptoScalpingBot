@@ -7,7 +7,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.velikokhatko.stratery1.exceptions.TraderBotException;
+import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.predictions.Prediction;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
@@ -46,10 +46,10 @@ public class WIScrappingService implements ScrappingService {
             } else if (elements.stream().anyMatch(e -> e.hasClass("glyphicon-menu-down"))) {
                 isUp = false;
             } else {
-                throw new TraderBotException("Не удалось спарсить " + url);
+                throw new TraderBotRuntimeException("Не удалось спарсить " + url);
             }
             return Optional.of(new Prediction(isUp, predictionHoursTTL));
-        } catch (IOException | TraderBotException e) {
+        } catch (IOException | TraderBotRuntimeException e) {
             log.error("Ошибка при получении прогноза с {}", url, e);
             return Optional.of(new Prediction(false, predictionHoursTTL));
         }
