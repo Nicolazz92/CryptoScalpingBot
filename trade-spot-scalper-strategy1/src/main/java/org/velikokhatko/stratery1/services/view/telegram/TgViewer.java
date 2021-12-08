@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -12,8 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
+import org.velikokhatko.stratery1.utils.Utils;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -50,7 +53,7 @@ public class TgViewer extends TelegramLongPollingBot {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
             String balance = String.valueOf(abstractTradingService.countAllMoney());
-            SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
+            SendMessage message = new SendMessage();
             message.setChatId(chatId);
             message.setText("Баланс: " + balance + '$');
 
@@ -58,6 +61,21 @@ public class TgViewer extends TelegramLongPollingBot {
 
             try {
                 execute(message); // Call method to send the message
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Scheduled(cron = "5 * * * * *")
+    public void checkHealth() {
+        LocalDateTime lastPastMinute = Utils.truncate(LocalDateTime.now().minusMinutes(1));
+        if (!lastPastMinute.equals(abstractTradingService.getHealthMonitor())) {
+            try {
+                SendMessage message = new SendMessage();
+                message.setChatId(chatId);
+                message.setText(String.format("Был пропущен вызов торговой функции в %s", lastPastMinute));
+                execute(message);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

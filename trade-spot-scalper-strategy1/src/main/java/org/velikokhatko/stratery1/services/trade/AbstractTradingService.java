@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 import org.velikokhatko.stratery1.services.predictions.PredictionService;
@@ -34,12 +33,15 @@ public abstract class AbstractTradingService {
     protected double orderLotUSDSize;
     protected int allPricesCacheSize;
     protected Map<LocalDateTime, Map<String, Double>> allPricesCache = new ConcurrentHashMap<>();
+    private String bridgeCoin;
+    private LocalDateTime healthMonitor = truncate(LocalDateTime.now());
 
     /**
      * ГЛАВНАЯ ФУНКЦИЯ
      */
     @Scheduled(cron = "10 * * * * *")
     public void trade() {
+        healthMonitor = truncate(LocalDateTime.now());
         updateAllPricesCache(allPricesCache);
 
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
@@ -58,11 +60,13 @@ public abstract class AbstractTradingService {
             if (ratioParamsPotentialOrders.isEmpty()) {
                 log.info("Не найдено условий для выставления ордеров, всего денег: {}$", countAllMoney());
             } else {
-                for (RatioParams rp : ratioParamsPotentialOrders) {
+                ratioParamsPotentialOrders.forEach(rp -> {
                     log.info("Готово к выставлению ордера: {}", rp);
                     executorService.execute(() -> openLongPosition(rp));
-                }
+                });
             }
+        } else {
+            log.info("Не хватает баланса {} для выставления ордера", bridgeCoin);
         }
     }
 
@@ -113,6 +117,10 @@ public abstract class AbstractTradingService {
 
     abstract public double countAllMoney();
 
+    public LocalDateTime getHealthMonitor() {
+        return healthMonitor;
+    }
+
     @Autowired
     public void setBinanceApiProvider(AbstractBinanceApiProvider binanceApiProvider) {
         this.binanceApiProvider = binanceApiProvider;
@@ -140,12 +148,16 @@ public abstract class AbstractTradingService {
 
     @Value("${orderLotUSDSize}")
     public void setOrderLotUSDSize(String orderLotUSDSize) {
-        Assert.hasText(orderLotUSDSize, "Не задан orderLotUSDSize");
         this.orderLotUSDSize = Double.parseDouble(orderLotUSDSize);
     }
 
     @Value("${allPricesCacheSize}")
     public void setAllPricesCacheSize(int allPricesCacheSize) {
         this.allPricesCacheSize = allPricesCacheSize;
+    }
+
+    @Value("${bridgeCoin}")
+    public void setBridgeCoin(String bridgeCoin) {
+        this.bridgeCoin = bridgeCoin;
     }
 }
