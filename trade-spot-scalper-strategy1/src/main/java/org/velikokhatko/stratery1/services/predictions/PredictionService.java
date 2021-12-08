@@ -28,9 +28,6 @@ public class PredictionService {
     public boolean canBuy(String symbol) {
         if (!cache.containsKey(symbol) || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
             executorService.execute(() -> {
-                if (cache.containsKey(symbol)) {
-                    return;
-                }
                 Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
                 predictionOptional.ifPresent(prediction -> {
                     log.info("Для пары {} получено предсказание: {}", symbol, predictionOptional);
