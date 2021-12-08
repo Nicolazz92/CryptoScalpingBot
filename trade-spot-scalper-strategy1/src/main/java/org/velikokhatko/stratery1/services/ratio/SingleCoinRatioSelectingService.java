@@ -37,9 +37,6 @@ public class SingleCoinRatioSelectingService {
             //кладем в очередь задачу на заполнение кэша
             executorService.execute(() -> {
                 ratioSelectProcessing.add(symbol);
-                if (cache.containsKey(symbol)) {
-                    return;
-                }
                 _selectRatio(symbol).ifPresent(params -> {
                     cache.put(symbol, params);
                 });
