@@ -34,7 +34,7 @@ public class PredictionService {
             executorService.execute(() -> {
                 Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
                 predictionOptional.ifPresent(prediction -> {
-                    log.info("Для пары {} получено предсказание: {}", symbol, predictionOptional);
+                    log.debug("Для пары {} получено предсказание: {}", symbol, predictionOptional);
                     PREDICTION_CACHE.put(symbol, predictionOptional.get());
                 });
             });
