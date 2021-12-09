@@ -47,11 +47,4 @@ public class RatioParams {
         this.deltaPercent = deltaPercent;
         this.freshLimit = freshLimit;
     }
-
-    public double calculateEffectivity() {
-        if (resultPercent == null || dealsCount == 0) {
-            return 0;
-        }
-        return (resultPercent - 100d) / dealsCount;
-    }
 }

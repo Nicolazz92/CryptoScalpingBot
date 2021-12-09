@@ -13,11 +13,11 @@ import org.velikokhatko.stratery1.utils.Utils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 import static org.velikokhatko.stratery1.constants.Constants.DURATION_FIVE_DAYS;
 import static org.velikokhatko.stratery1.constants.Constants.DURATION_ONE_DAY;
+import static org.velikokhatko.stratery1.services.AppContext.RATIO_CACHE;
 
 @Service
 @Slf4j
@@ -28,7 +28,6 @@ public class SingleCoinRatioSelectingService {
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
     private ExecutorService executorService;
-    private final Map<String, RatioParams> cache = new ConcurrentHashMap<>();
     private final Set<String> ratioSelectProcessing = new HashSet<>();
     private double ratioSelectingDaysPeriod;
     private int allPricesCacheSize;
@@ -42,17 +41,17 @@ public class SingleCoinRatioSelectingService {
             executorService.execute(() -> {
                 ratioSelectProcessing.add(symbol);
                 _selectRatio(symbol).ifPresent(params -> {
-                    cache.put(symbol, params);
+                    RATIO_CACHE.put(symbol, params);
                 });
                 ratioSelectProcessing.remove(symbol);
             });
             return Optional.empty();
         }
-        return Optional.ofNullable(cache.get(symbol));
+        return Optional.ofNullable(RATIO_CACHE.get(symbol));
     }
 
     private boolean needToUpdateRatioParams(String symbol) {
-        return !cache.containsKey(symbol) || cache.get(symbol).getFreshLimit().isBefore(LocalDateTime.now());
+        return !RATIO_CACHE.containsKey(symbol) || RATIO_CACHE.get(symbol).getFreshLimit().isBefore(LocalDateTime.now());
     }
 
     private Optional<RatioParams> _selectRatio(String symbol) {
@@ -107,12 +106,6 @@ public class SingleCoinRatioSelectingService {
             }
         }
 
-//        double maxCalculateEffectivity = paramsReviews.stream()
-//                .max(Comparator.comparing(RatioParams::calculateEffectivity))
-//                .orElse(new RatioParams()).calculateEffectivity();
-//        return paramsReviews.stream()
-//                .filter(rp -> rp.calculateEffectivity() == maxCalculateEffectivity)
-//                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElseThrow();
         final RatioParams maxPercentRP = paramsReviews.stream()
                 .max(Comparator.comparing(RatioParams::getResultPercent)).orElse(null);
         if (maxPercentRP == null) {

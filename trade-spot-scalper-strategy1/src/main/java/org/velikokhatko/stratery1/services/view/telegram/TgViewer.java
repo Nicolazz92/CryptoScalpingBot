@@ -13,10 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
-import org.velikokhatko.stratery1.utils.Utils;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.time.LocalDateTime;
+
+import static org.velikokhatko.stratery1.utils.Utils.truncate;
 
 @Service
 @Slf4j
@@ -52,9 +54,9 @@ public class TgViewer extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String balance = String.valueOf(abstractTradingService.countAllMoney());
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
+            String balance = String.valueOf(abstractTradingService.countAllMoney());
             message.setText("Баланс: " + balance + '$');
 
             log.info(message.getChatId() + ": " + message.getText());
@@ -69,12 +71,12 @@ public class TgViewer extends TelegramLongPollingBot {
 
     @Scheduled(cron = "5 * * * * *")
     public void checkHealth() {
-        LocalDateTime lastPastMinute = Utils.truncate(LocalDateTime.now().minusMinutes(1));
-        if (!lastPastMinute.equals(abstractTradingService.getHealthMonitor())) {
+        Duration duration = Duration.between(truncate(abstractTradingService.getHealthMonitor()), truncate(LocalDateTime.now()));
+        if (duration.toMinutes() > 1) {
             try {
                 SendMessage message = new SendMessage();
                 message.setChatId(chatId);
-                message.setText(String.format("Был пропущен вызов торговой функции в %s", lastPastMinute));
+                message.setText(String.format("Был пропущено %d минут работы торговой функции", duration.toMinutes()));
                 execute(message);
             } catch (TelegramApiException e) {
                 e.printStackTrace();

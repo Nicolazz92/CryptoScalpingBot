@@ -6,16 +6,15 @@ import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+
+import static org.velikokhatko.stratery1.services.AppContext.PREDICTION_CACHE;
 
 @Slf4j
 @Service
 public class PredictionService {
 
-    private final Map<String, Prediction> cache = new ConcurrentHashMap<>();
     private ScrappingService scrappingService;
     private ExecutorService executorService;
 
@@ -30,19 +29,19 @@ public class PredictionService {
         if (symbol == null) {
             throw new TraderBotRuntimeException("symbol is null");
         }
-        if (!cache.containsKey(symbol) || cache.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
-            cache.remove(symbol);
+        if (!PREDICTION_CACHE.containsKey(symbol) || PREDICTION_CACHE.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
+            PREDICTION_CACHE.remove(symbol);
             executorService.execute(() -> {
                 Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
                 predictionOptional.ifPresent(prediction -> {
                     log.info("Для пары {} получено предсказание: {}", symbol, predictionOptional);
-                    cache.put(symbol, predictionOptional.get());
+                    PREDICTION_CACHE.put(symbol, predictionOptional.get());
                 });
             });
             return false;
         }
 
-        return cache.get(symbol).canBuy;
+        return PREDICTION_CACHE.get(symbol).canBuy;
     }
 
     @Autowired
