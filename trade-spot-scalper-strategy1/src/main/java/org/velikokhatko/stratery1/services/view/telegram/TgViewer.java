@@ -54,6 +54,10 @@ public class TgViewer extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
+            if (!update.getMessage().getChatId().equals(Long.valueOf(chatId))) {
+                sendMessage("Пшёл нах отседа");
+                return;
+            }
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
             String balance = String.valueOf(abstractTradingService.countAllMoney());
@@ -69,8 +73,21 @@ public class TgViewer extends TelegramLongPollingBot {
         }
     }
 
+    public void sendMessage(String text) {
+        try {
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            message.setText(text);
+            log.info(message.getChatId() + ": " + message.getText());
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Scheduled(cron = "5 * * * * *")
     public void checkHealth() {
+        log.info(this.getClass().getSimpleName());
         Duration duration = Duration.between(truncate(abstractTradingService.getHealthMonitor()), truncate(LocalDateTime.now()));
         if (duration.toMinutes() > 1) {
             try {

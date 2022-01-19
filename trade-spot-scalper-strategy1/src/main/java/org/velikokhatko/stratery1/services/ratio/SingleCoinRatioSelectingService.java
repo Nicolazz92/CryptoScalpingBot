@@ -13,6 +13,7 @@ import org.velikokhatko.stratery1.utils.Utils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 
 import static org.velikokhatko.stratery1.constants.Constants.DURATION_FIVE_DAYS;
@@ -28,7 +29,7 @@ public class SingleCoinRatioSelectingService {
     private MarketingIntervalsObtainingService marketingIntervalsObtainingService;
     private RemoteFileExistsCheckingService remoteFileExistsCheckingService;
     private ExecutorService executorService;
-    private final Set<String> ratioSelectProcessing = new HashSet<>();
+    private final Set<String> ratioSelectProcessing = new ConcurrentSkipListSet<>();
     private double ratioSelectingDaysPeriod;
     private int allPricesCacheSize;
 

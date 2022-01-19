@@ -37,6 +37,7 @@ public class LocalTradingService extends AbstractTradingService {
 
     @Scheduled(fixedDelay = 30000)
     public void closeLongPositions() {
+        log.info(this.getClass().getSimpleName());
         updateAllPricesCache(allPricesLocalCache);
 
         Set<String> holdSymbols = holdMap.keySet();
