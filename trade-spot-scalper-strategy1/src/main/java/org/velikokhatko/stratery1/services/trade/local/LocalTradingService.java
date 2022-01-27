@@ -23,7 +23,6 @@ public class LocalTradingService extends AbstractTradingService {
 
     private double bridgeDepositUSD = 500d;
     private final Map<String, Hold> holdMap = new ConcurrentHashMap<>();
-    private final Map<LocalDateTime, Map<String, Double>> allPricesLocalCache = new ConcurrentHashMap<>();
 
     @Override
     protected double getFreeBridgeCoinUSDBalance() {
@@ -38,7 +37,7 @@ public class LocalTradingService extends AbstractTradingService {
     @Scheduled(fixedDelay = 30000)
     public void closeLongPositions() {
         log.info(this.getClass().getSimpleName());
-        updateAllPricesCache(allPricesLocalCache);
+        updateAllPricesCache(allPricesCache);
 
         Set<String> holdSymbols = holdMap.keySet();
         for (String holdSymbol : holdSymbols) {
@@ -88,7 +87,7 @@ public class LocalTradingService extends AbstractTradingService {
     private Optional<Double> getPrice(Integer minusMinutes, String symbol) {
         Map<String, Double> symbolPriceMap;
         LocalDateTime key = truncate(LocalDateTime.now().minusMinutes(minusMinutes));
-        if ((symbolPriceMap = allPricesLocalCache.get(key)) != null && symbolPriceMap.get(symbol) != null) {
+        if ((symbolPriceMap = allPricesCache.get(key)) != null && symbolPriceMap.get(symbol) != null) {
             return Optional.ofNullable(symbolPriceMap.get(symbol));
         }
         if (minusMinutes == 0) {
