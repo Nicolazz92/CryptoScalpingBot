@@ -72,7 +72,10 @@ public abstract class AbstractTradingService {
     }
 
     protected void updateAllPricesCache(Map<LocalDateTime, Map<String, Double>> cache) {
-        cache.remove(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1));
+        List<LocalDateTime> oldKeys = cache.keySet().stream()
+                .filter(key -> key.isBefore(LocalDateTime.now().minusMinutes(allPricesCacheSize + 1)))
+                .collect(Collectors.toList());
+        oldKeys.forEach(cache::remove);
         Map<String, Double> currentPrices = binanceApiProvider.getAllPrices().stream()
                 .collect(Collectors.toMap(
                         TickerPrice::getSymbol,
