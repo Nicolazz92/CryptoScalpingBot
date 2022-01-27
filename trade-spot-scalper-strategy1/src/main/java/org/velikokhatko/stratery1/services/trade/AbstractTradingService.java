@@ -41,7 +41,6 @@ public abstract class AbstractTradingService {
      */
     @Scheduled(cron = "10 * * * * *")
     public void trade() {
-        log.info(this.getClass().getSimpleName());
         healthMonitor = truncate(LocalDateTime.now());
         updateAllPricesCache(allPricesCache);
 

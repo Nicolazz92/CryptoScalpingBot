@@ -87,7 +87,6 @@ public class TgViewer extends TelegramLongPollingBot {
 
     @Scheduled(cron = "5 * * * * *")
     public void checkHealth() {
-        log.info(this.getClass().getSimpleName());
         Duration duration = Duration.between(truncate(abstractTradingService.getHealthMonitor()), truncate(LocalDateTime.now()));
         if (duration.toMinutes() > 1) {
             try {
