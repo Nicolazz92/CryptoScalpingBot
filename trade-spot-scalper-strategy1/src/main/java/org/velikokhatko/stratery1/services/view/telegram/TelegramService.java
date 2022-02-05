@@ -23,7 +23,7 @@ import static org.velikokhatko.stratery1.utils.Utils.truncate;
 @Service
 @Slf4j
 @Profile("telegram")
-public class TgViewer extends TelegramLongPollingBot {
+public class TelegramService extends TelegramLongPollingBot {
 
     private AbstractTradingService abstractTradingService;
     private String token;
@@ -52,36 +52,12 @@ public class TgViewer extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
             if (!update.getMessage().getChatId().equals(Long.valueOf(chatId))) {
-                sendMessage("Пшёл нах отседа");
+                sendMessage(String.valueOf(update.getMessage().getChatId()), "Пшёл нах отседа");
                 return;
             }
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            String balance = String.valueOf(abstractTradingService.countAllMoney());
-            message.setText("Баланс: " + balance + '$');
-
-            log.info(message.getChatId() + ": " + message.getText());
-
-            try {
-                execute(message); // Call method to send the message
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void sendMessage(String text) {
-        try {
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setText(text);
-            log.info(message.getChatId() + ": " + message.getText());
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+            sendMessage(chatId, "Баланс: " + abstractTradingService.countAllMoney() + '$');
         }
     }
 
@@ -89,14 +65,19 @@ public class TgViewer extends TelegramLongPollingBot {
     public void checkHealth() {
         Duration duration = Duration.between(truncate(abstractTradingService.getHealthMonitor()), truncate(LocalDateTime.now()));
         if (duration.toMinutes() > 1) {
-            try {
-                SendMessage message = new SendMessage();
-                message.setChatId(chatId);
-                message.setText(String.format("Был пропущено %d минут работы торговой функции", duration.toMinutes()));
-                execute(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+            sendMessage(chatId, String.format("Был пропущено %d минут работы торговой функции", duration.toMinutes()));
+        }
+    }
+
+    public void sendMessage(String currentChatId, String text) {
+        try {
+            SendMessage message = new SendMessage();
+            message.setChatId(currentChatId);
+            message.setText(text);
+            log.info(message.getChatId() + ": " + message.getText());
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 
