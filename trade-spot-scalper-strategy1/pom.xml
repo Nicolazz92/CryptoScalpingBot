@@ -3,34 +3,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.6</version>
-        <relativePath/>
+        <groupId>org.velikokhatko</groupId>
+        <artifactId>CryptoScalpingBot</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.velikokhatko</groupId>
     <artifactId>trade-spot-scalper-strategy1</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>trade-spot-scalper-strategy1</name>
     <description>trade-spot-scalper-strategy1</description>
+
     <properties>
-        <java.version>14</java.version>
         <binance-api-client.version>1.0.1</binance-api-client.version>
         <telegrambots.version>5.4.0.1</telegrambots.version>
         <commons-io.version>2.11.0</commons-io.version>
         <opencsv.version>5.5.2</opencsv.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+    <dependencies>
         <dependency>
             <groupId>com.binance.api</groupId>
             <artifactId>binance-api-client</artifactId>
@@ -41,12 +30,6 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
