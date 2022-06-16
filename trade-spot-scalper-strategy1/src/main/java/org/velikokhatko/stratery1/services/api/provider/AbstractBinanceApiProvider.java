@@ -13,9 +13,12 @@ import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.api.custom.BinanceCustomApi;
+import org.velikokhatko.stratery1.services.api.custom.BinanceCustomApiService;
 import org.velikokhatko.stratery1.services.api.custom.domain.CoinInfo;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,17 +28,17 @@ import static org.velikokhatko.stratery1.constants.Constants.DOUBLE_VERBOSE_FORM
 import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 
 @Slf4j
-public abstract class AbstractBinanceApiProvider {
+public abstract class AbstractBinanceApiProvider implements BinanceCustomApi {
 
-    protected BinanceApiRestClient client;
-    protected BinanceCustomApi binanceCustomApi;
+    protected BinanceApiRestClient binanceApiRestClient;
+    protected BinanceCustomApiService binanceCustomApiService;
     private String bridgeCoin;
 
     public double getFreeBridgeCoinUSDBalance() {
         String bridgeSymbol = bridgeCoin + UsdStablecoins.BUSD.name();
 
         try {
-            Double bridgeCoinUSDPrice = Double.valueOf(client.getPrice(bridgeSymbol).getPrice());
+            Double bridgeCoinUSDPrice = Double.valueOf(binanceApiRestClient.getPrice(bridgeSymbol).getPrice());
 
             Double bridgeCoinFreeAmount = getBalances().stream()
                     .filter(ab -> bridgeCoin.equals(ab.getAsset()))
@@ -106,7 +109,7 @@ public abstract class AbstractBinanceApiProvider {
 
     public List<TickerPrice> getAllPrices() {
         try {
-            return client.getAllPrices();
+            return binanceApiRestClient.getAllPrices();
         } catch (BinanceApiException e) {
             log.error("Ошибка api: ", e);
         }
@@ -115,28 +118,29 @@ public abstract class AbstractBinanceApiProvider {
 
     public Optional<TickerPrice> getPrice(String symbol) {
         try {
-            return Optional.ofNullable(client.getPrice(symbol));
+            return Optional.ofNullable(binanceApiRestClient.getPrice(symbol));
         } catch (BinanceApiException e) {
             log.error("Ошибка api: ", e);
         }
         return Optional.empty();
     }
 
+    @Override
     public List<CoinInfo> getAllCoinsInfo() {
-        return binanceCustomApi.getAllCoinsInfo();
+        try {
+            return binanceCustomApiService.getAllCoinsInfo(new Date().getTime()).execute().body();
+        } catch (IOException e) {
+            log.error("Ошибка api: ", e);
+        }
+        return new ArrayList<>();
     }
 
     private List<AssetBalance> getBalances() {
-        return client.getAccount().getBalances();
+        return binanceApiRestClient.getAccount().getBalances();
     }
 
     public ExchangeInfo getExchangeInfo() {
-        return client.getExchangeInfo();
-    }
-
-    @Autowired
-    public void setBinanceCustomApi(BinanceCustomApi binanceCustomApi) {
-        this.binanceCustomApi = binanceCustomApi;
+        return binanceApiRestClient.getExchangeInfo();
     }
 
     @Value("${bridgeCoin}")
