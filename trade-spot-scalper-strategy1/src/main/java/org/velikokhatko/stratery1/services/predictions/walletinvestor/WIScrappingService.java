@@ -31,8 +31,14 @@ public class WIScrappingService implements ScrappingService {
         if (baseAssetOptional.isEmpty()) {
             return Optional.empty();
         }
+        Optional<String> coinFullName = exchangeInfoService.getCoinFullName(baseAssetOptional.get());
+        if (coinFullName.isEmpty()) {
+            return Optional.empty();
+        }
 
-        final String url = FORECAST_URL + baseAssetOptional.get();
+        log.info("Валютная пара: {}, memo монеты: {}, полное имя монеты: {}",
+                symbol, baseAssetOptional.get(), coinFullName.get());
+        final String url = FORECAST_URL + coinFullName.get();
         try {
             Document document = Jsoup.connect(url).get();
             final List<Element> elements = document
@@ -53,6 +59,22 @@ public class WIScrappingService implements ScrappingService {
             log.error("Ошибка при получении прогноза с {}", url, e);
             return Optional.of(new Prediction(false, predictionHoursTTL));
         }
+    }
+
+    private enum CoinFullNameFormatStrategies {
+        SPLICE {
+            @Override
+            public String formatName(String coinFullName) {
+                return coinFullName.replaceAll(" ", "");
+            }
+        },
+        REPLACE20 {
+            @Override
+            public String formatName(String coinFullName) {
+                return coinFullName.replaceAll(" ", "%20");
+            }
+        };
+        public abstract String formatName(String coinFullName);
     }
 
     @Autowired
