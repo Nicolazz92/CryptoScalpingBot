@@ -7,10 +7,13 @@ import com.binance.api.client.domain.market.TickerPrice;
 import com.binance.api.client.exception.BinanceApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
+import org.velikokhatko.stratery1.services.api.custom.BinanceCustomApi;
+import org.velikokhatko.stratery1.services.api.custom.domain.CoinInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,7 @@ import static org.velikokhatko.stratery1.utils.Utils.assetBalanceListToString;
 public abstract class AbstractBinanceApiProvider {
 
     protected BinanceApiRestClient client;
+    protected BinanceCustomApi binanceCustomApi;
     private String bridgeCoin;
 
     public double getFreeBridgeCoinUSDBalance() {
@@ -118,12 +122,21 @@ public abstract class AbstractBinanceApiProvider {
         return Optional.empty();
     }
 
+    public List<CoinInfo> getAllCoinsInfo() {
+        return binanceCustomApi.getAllCoinsInfo();
+    }
+
     private List<AssetBalance> getBalances() {
         return client.getAccount().getBalances();
     }
 
     public ExchangeInfo getExchangeInfo() {
         return client.getExchangeInfo();
+    }
+
+    @Autowired
+    public void setBinanceCustomApi(BinanceCustomApi binanceCustomApi) {
+        this.binanceCustomApi = binanceCustomApi;
     }
 
     @Value("${bridgeCoin}")
