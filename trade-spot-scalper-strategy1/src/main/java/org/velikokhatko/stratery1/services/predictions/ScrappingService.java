@@ -1,5 +1,7 @@
 package org.velikokhatko.stratery1.services.predictions;
 
+import com.velikokhatko.model.Prediction;
+
 import java.util.Optional;
 
 public interface ScrappingService {

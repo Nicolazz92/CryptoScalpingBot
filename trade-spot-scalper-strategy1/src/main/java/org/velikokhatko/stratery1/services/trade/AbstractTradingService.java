@@ -9,7 +9,7 @@ import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 import org.velikokhatko.stratery1.services.predictions.PredictionService;
 import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.RatioParams;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;

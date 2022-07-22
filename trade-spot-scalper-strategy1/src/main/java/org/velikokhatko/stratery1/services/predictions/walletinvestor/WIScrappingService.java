@@ -1,5 +1,6 @@
 package org.velikokhatko.stratery1.services.predictions.walletinvestor;
 
+import com.velikokhatko.model.Prediction;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
-import org.velikokhatko.stratery1.services.predictions.Prediction;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
 
 import java.io.IOException;

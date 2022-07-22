@@ -1,5 +1,6 @@
 package org.velikokhatko.stratery1.services.predictions;
 
+import com.velikokhatko.model.Prediction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class PredictionService {
         if (symbol == null) {
             throw new TraderBotRuntimeException("symbol is null");
         }
-        if (!PREDICTION_CACHE.containsKey(symbol) || PREDICTION_CACHE.get(symbol).freshLimit.isBefore(LocalDateTime.now())) {
+        if (!PREDICTION_CACHE.containsKey(symbol) || PREDICTION_CACHE.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
             PREDICTION_CACHE.remove(symbol);
             executorService.execute(() -> {
                 Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
@@ -41,7 +42,7 @@ public class PredictionService {
             return false;
         }
 
-        return PREDICTION_CACHE.get(symbol).canBuy;
+        return PREDICTION_CACHE.get(symbol).isCanBuy();
     }
 
     @Autowired

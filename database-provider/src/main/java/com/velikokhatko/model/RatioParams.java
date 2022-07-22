@@ -1,15 +1,18 @@
-package org.velikokhatko.stratery1.services.ratio.model;
+package com.velikokhatko.model;
 
 import lombok.*;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @NoArgsConstructor
-public class RatioParams {
+@Entity
+@Table(name = "RATIO_PARAMS")
+public class RatioParams extends BaseEntity {
 
     private String symbol;
 

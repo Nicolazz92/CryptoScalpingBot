@@ -2,6 +2,7 @@ package org.velikokhatko.stratery1.services.api.exchange;
 
 import com.binance.api.client.domain.general.SymbolInfo;
 import com.binance.api.client.domain.general.SymbolStatus;
+import com.velikokhatko.model.SymbolInfoShort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.velikokhatko.stratery1.utils.Utils.extractSymbolInfoShort;
 
 @Slf4j
 @Service
@@ -64,7 +66,7 @@ public class ExchangeInfoService {
                 .filter(symbolInfo -> SymbolStatus.TRADING == symbolInfo.getStatus())
                 .filter(SymbolInfo::isSpotTradingAllowed)
                 .filter(symbolInfo -> bridgeCoin.equals(symbolInfo.getQuoteAsset()))
-                .peek(symbolInfo -> symbolInfoShortCache.put(symbolInfo.getSymbol(), new SymbolInfoShort(symbolInfo)))
+                .peek(symbolInfo -> symbolInfoShortCache.put(symbolInfo.getSymbol(), extractSymbolInfoShort(symbolInfo)))
                 .collect(Collectors.toList());
         log.info("Была получена информация о {} торговых парах: {}",
                 symbols.size(), symbols.stream().map(SymbolInfo::getSymbol).collect(Collectors.joining(", ")));

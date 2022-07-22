@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.RatioParams;
 import org.velikokhatko.stratery1.utils.Utils;
 
 import java.time.Duration;

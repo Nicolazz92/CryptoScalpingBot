@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+
+#  database-provider:
+#    container_name: database-provider
+
+  database:
+    container_name: database
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: csb_strat_1

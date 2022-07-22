@@ -17,6 +17,7 @@
     <modules>
         <module>binance-api-client</module>
         <module>trade-spot-scalper-strategy1</module>
+        <module>database-provider</module>
     </modules>
 
     <properties>
@@ -63,6 +64,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 </project>

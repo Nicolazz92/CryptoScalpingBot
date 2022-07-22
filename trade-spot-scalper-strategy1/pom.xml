@@ -21,6 +21,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.velikokhatko</groupId>
+            <artifactId>database-provider</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.binance.api</groupId>
             <artifactId>binance-api-client</artifactId>
             <version>${binance-api-client.version}</version>

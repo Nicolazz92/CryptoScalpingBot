@@ -1,6 +1,9 @@
 package org.velikokhatko.stratery1.utils;
 
 import com.binance.api.client.domain.account.AssetBalance;
+import com.binance.api.client.domain.general.FilterType;
+import com.binance.api.client.domain.general.SymbolInfo;
+import com.velikokhatko.model.SymbolInfoShort;
 import org.velikokhatko.stratery1.constants.Constants;
 
 import java.time.LocalDate;
@@ -44,5 +47,14 @@ public final class Utils {
 
     public static LocalDateTime truncate(LocalDateTime ldt) {
         return ldt.truncatedTo(ChronoUnit.MINUTES);
+    }
+
+    public static SymbolInfoShort extractSymbolInfoShort(SymbolInfo symbolInfo) {
+        SymbolInfoShort result = new SymbolInfoShort();
+        result.setSymbol(symbolInfo.getSymbol());
+        result.setBaseAsset(symbolInfo.getBaseAsset());
+        result.setLotSizeMin(Double.parseDouble(symbolInfo.getSymbolFilter(FilterType.LOT_SIZE).getMinQty()));
+        result.setMarketLotSizeMin(Double.parseDouble(symbolInfo.getSymbolFilter(FilterType.MARKET_LOT_SIZE).getMinQty()));
+        return result;
     }
 }

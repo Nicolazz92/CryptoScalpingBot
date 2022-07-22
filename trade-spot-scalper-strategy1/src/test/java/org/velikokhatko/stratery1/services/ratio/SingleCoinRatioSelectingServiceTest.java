@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.BaseStrategy1Test;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.RatioParams;
 
 import java.util.Optional;
 

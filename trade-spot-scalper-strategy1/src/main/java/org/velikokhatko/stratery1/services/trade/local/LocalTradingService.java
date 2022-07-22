@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.ratio.model.Hold;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
 
 import java.time.LocalDateTime;

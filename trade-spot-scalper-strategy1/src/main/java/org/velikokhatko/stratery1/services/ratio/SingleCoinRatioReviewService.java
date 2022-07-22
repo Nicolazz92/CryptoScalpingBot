@@ -3,7 +3,7 @@ package org.velikokhatko.stratery1.services.ratio;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.ratio.model.Hold;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.RatioParams;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
@@ -41,7 +41,6 @@ public class SingleCoinRatioReviewService {
                     hold = new Hold(currentPrice, oldPrice, minusFee(resultMoney));
                 }
             } else if (hold != null && currentPrice >= hold.getExpectingPrice()) {
-                hold.setSellingDate(currentLDT);
                 resultMoney = minusFee(hold.getMoneyAmount() / hold.getBuyingPrice() * currentPrice);
                 ratioParams.setDealsCount(ratioParams.getDealsCount() + 1);
                 hold = null;

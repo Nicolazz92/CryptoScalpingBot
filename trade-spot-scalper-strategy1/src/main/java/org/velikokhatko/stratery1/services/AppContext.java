@@ -1,7 +1,7 @@
 package org.velikokhatko.stratery1.services;
 
-import org.velikokhatko.stratery1.services.predictions.Prediction;
-import org.velikokhatko.stratery1.services.ratio.model.RatioParams;
+import com.velikokhatko.model.Prediction;
+import com.velikokhatko.model.RatioParams;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
