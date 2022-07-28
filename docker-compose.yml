@@ -2,12 +2,15 @@ version: '3'
 
 services:
 
-#  database-provider:
-#    container_name: database-provider
+  database-provider:
+    build: ./database-provider
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
 
   database:
-    container_name: database
-    image: 'postgres:latest'
+    image: 'postgres:14'
     ports:
       - 5432:5432
     environment:
