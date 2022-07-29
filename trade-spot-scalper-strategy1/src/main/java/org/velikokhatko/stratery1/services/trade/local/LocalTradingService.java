@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.ratio.model.Hold;
-import com.velikokhatko.model.RatioParams;
 import org.velikokhatko.stratery1.services.trade.AbstractTradingService;
+import velikokhatko.dto.RatioParamsDTO;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class LocalTradingService extends AbstractTradingService {
     }
 
     @Override
-    protected void openLongPosition(RatioParams ratioParams) {
+    protected void openLongPosition(RatioParamsDTO ratioParams) {
         Optional<Double> currentPrice = getPrice(0, ratioParams.getSymbol());
         Optional<Double> oldPrice = getOldPrice(ratioParams);
         if (oldPrice.isPresent() && currentPrice.isPresent() && bridgeDepositUSD > orderLotUSDSize) {
@@ -66,7 +66,7 @@ public class LocalTradingService extends AbstractTradingService {
         }
     }
 
-    private Optional<Double> getOldPrice(RatioParams ratioParams) {
+    private Optional<Double> getOldPrice(RatioParamsDTO ratioParams) {
         Integer minusMinutes = ratioParams.getDeltaMinuteInterval();
         Optional<Double> price = getPrice(minusMinutes, ratioParams.getSymbol());
         return price;

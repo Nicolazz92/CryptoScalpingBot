@@ -7,14 +7,13 @@ import com.binance.api.client.domain.market.TickerPrice;
 import com.binance.api.client.exception.BinanceApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.constants.UsdStablecoins;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.api.custom.BinanceCustomApi;
 import org.velikokhatko.stratery1.services.api.custom.BinanceCustomApiService;
-import org.velikokhatko.stratery1.services.api.custom.domain.CoinInfo;
+import velikokhatko.dto.CoinInfoDTO;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,7 +125,7 @@ public abstract class AbstractBinanceApiProvider implements BinanceCustomApi {
     }
 
     @Override
-    public List<CoinInfo> getAllCoinsInfo() {
+    public List<CoinInfoDTO> getAllCoinsInfo() {
         try {
             return binanceCustomApiService.getAllCoinsInfo(new Date().getTime()).execute().body();
         } catch (IOException e) {

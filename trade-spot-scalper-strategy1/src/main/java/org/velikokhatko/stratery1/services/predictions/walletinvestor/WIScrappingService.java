@@ -1,6 +1,5 @@
 package org.velikokhatko.stratery1.services.predictions.walletinvestor;
 
-import com.velikokhatko.model.Prediction;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.predictions.ScrappingService;
+import velikokhatko.dto.PredictionDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +26,7 @@ public class WIScrappingService implements ScrappingService {
     private int predictionHoursTTL;
 
     @Override
-    public Optional<Prediction> getPrediction(String symbol) {
+    public Optional<PredictionDTO> getPrediction(String symbol) {
         Optional<String> baseAssetOptional = exchangeInfoService.getBaseAsset(symbol);
         if (baseAssetOptional.isEmpty()) {
             return Optional.empty();
@@ -54,10 +54,10 @@ public class WIScrappingService implements ScrappingService {
             } else {
                 throw new TraderBotRuntimeException("Не удалось спарсить " + url);
             }
-            return Optional.of(new Prediction(isUp, predictionHoursTTL));
+            return Optional.of(new PredictionDTO(isUp, predictionHoursTTL));
         } catch (IOException | TraderBotRuntimeException e) {
             log.error("Ошибка при получении прогноза с {}", url, e);
-            return Optional.of(new Prediction(false, predictionHoursTTL));
+            return Optional.of(new PredictionDTO(false, predictionHoursTTL));
         }
     }
 

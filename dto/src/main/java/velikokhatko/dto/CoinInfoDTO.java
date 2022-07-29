@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services.api.custom.domain;
+package velikokhatko.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CoinInfo {
+public class CoinInfoDTO {
     private String coin;
     private boolean depositAllEnable;
     private boolean withdrawAllEnable;
@@ -25,5 +25,5 @@ public class CoinInfo {
     private String storage;
     private boolean isLegalMoney;
     private boolean trading;
-    private List<NetworkList> networkList;
+    private List<NetworkListDTO> networkList;
 }

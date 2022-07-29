@@ -1,10 +1,10 @@
 package org.velikokhatko.stratery1.services.predictions;
 
-import com.velikokhatko.model.Prediction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
+import velikokhatko.dto.PredictionDTO;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class PredictionService {
         if (!PREDICTION_CACHE.containsKey(symbol) || PREDICTION_CACHE.get(symbol).getFreshLimit().isBefore(LocalDateTime.now())) {
             PREDICTION_CACHE.remove(symbol);
             executorService.execute(() -> {
-                Optional<Prediction> predictionOptional = scrappingService.getPrediction(symbol);
+                Optional<PredictionDTO> predictionOptional = scrappingService.getPrediction(symbol);
                 predictionOptional.ifPresent(prediction -> {
                     log.info("Для пары {} получено предсказание: {}", symbol, predictionOptional);
                     PREDICTION_CACHE.put(symbol, predictionOptional.get());

@@ -9,7 +9,7 @@ import org.velikokhatko.stratery1.services.api.exchange.ExchangeInfoService;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
 import org.velikokhatko.stratery1.services.predictions.PredictionService;
 import org.velikokhatko.stratery1.services.ratio.SingleCoinRatioSelectingService;
-import com.velikokhatko.model.RatioParams;
+import velikokhatko.dto.RatioParamsDTO;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -47,14 +47,14 @@ public abstract class AbstractTradingService {
         double freeBridgeCoinUSDBalance = getFreeBridgeCoinUSDBalance();
         int availableOrderSlots = (int) (freeBridgeCoinUSDBalance / orderLotUSDSize);
         if (availableOrderSlots > 0) {
-            List<RatioParams> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
+            List<RatioParamsDTO> ratioParamsPotentialOrders = exchangeInfoService.getAllSymbolInfoShort().keySet().stream()
                     .filter(predictionService::canBuy)
                     .filter(this::doesNotHolding)
                     .filter(this::isProfitableFall)
                     .map(ratioSelectingService::selectRatio)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .sorted(Comparator.comparing(RatioParams::getDeltaPercent).reversed())
+                    .sorted(Comparator.comparing(RatioParamsDTO::getDeltaPercent).reversed())
                     .limit(availableOrderSlots)
                     .collect(Collectors.toList());
             if (ratioParamsPotentialOrders.isEmpty()) {
@@ -88,9 +88,9 @@ public abstract class AbstractTradingService {
     abstract protected boolean doesNotHolding(String s);
 
     private boolean isProfitableFall(String symbol) {
-        Optional<RatioParams> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
+        Optional<RatioParamsDTO> ratioParamsOptional = ratioSelectingService.selectRatio(symbol);
         if (ratioParamsOptional.isPresent()) {
-            RatioParams ratioParams = ratioParamsOptional.get();
+            RatioParamsDTO ratioParams = ratioParamsOptional.get();
             LocalDateTime currentPriceKey = truncate(LocalDateTime.now());
             LocalDateTime oldPriceKey = truncate(LocalDateTime.now().minusMinutes(ratioParams.getDeltaMinuteInterval()));
 
@@ -116,7 +116,7 @@ public abstract class AbstractTradingService {
         return false;
     }
 
-    abstract protected void openLongPosition(RatioParams ratioParams);
+    abstract protected void openLongPosition(RatioParamsDTO ratioParams);
 
     abstract public double countAllMoney();
 

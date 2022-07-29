@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.velikokhatko</groupId>
-            <artifactId>database-provider</artifactId>
+            <artifactId>dto</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

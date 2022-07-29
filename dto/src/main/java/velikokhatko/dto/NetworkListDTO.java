@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services.api.custom.domain;
+package velikokhatko.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NetworkList {
+public class NetworkListDTO {
     private String network;
     private String coin;
     private String withdrawIntegerMultiple;

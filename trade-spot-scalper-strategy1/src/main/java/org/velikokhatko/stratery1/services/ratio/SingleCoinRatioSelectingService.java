@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.exceptions.TraderBotRuntimeException;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
-import com.velikokhatko.model.RatioParams;
 import org.velikokhatko.stratery1.utils.Utils;
+import velikokhatko.dto.RatioParamsDTO;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -33,7 +33,7 @@ public class SingleCoinRatioSelectingService {
     private double ratioSelectingDaysPeriod;
     private int allPricesCacheSize;
 
-    public Optional<RatioParams> selectRatio(String symbol) {
+    public Optional<RatioParamsDTO> selectRatio(String symbol) {
         if (symbol == null) {
             throw new TraderBotRuntimeException("symbol is null");
         }
@@ -55,9 +55,9 @@ public class SingleCoinRatioSelectingService {
         return !RATIO_CACHE.containsKey(symbol) || RATIO_CACHE.get(symbol).getFreshLimit().isBefore(LocalDateTime.now());
     }
 
-    private Optional<RatioParams> _selectRatio(String symbol) {
+    private Optional<RatioParamsDTO> _selectRatio(String symbol) {
         final List<String> reachableFilesLinks = getReachableFilesLinks(symbol);
-        final RatioParams defaultRatioParams = new RatioParams(symbol, 15, 10d,
+        final RatioParamsDTO defaultRatioParams = new RatioParamsDTO(symbol, 15, 10d,
                 LocalDateTime.now().plus(DURATION_ONE_DAY).plusMinutes(RandomUtils.nextLong(0, 60)));
 
         if (reachableFilesLinks.isEmpty()) {
@@ -78,7 +78,7 @@ public class SingleCoinRatioSelectingService {
             return Optional.of(defaultRatioParams);
         }
 
-        final RatioParams result = review(symbol, marketIntervalMap, freshDuration);
+        final RatioParamsDTO result = review(symbol, marketIntervalMap, freshDuration);
         log.info("При подборе коэффициентов для пары {} были выбраны коэффициенты {}", symbol, result);
         return Optional.ofNullable(result);
     }
@@ -95,33 +95,33 @@ public class SingleCoinRatioSelectingService {
         return result;
     }
 
-    private RatioParams review(String symbol, Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
-        List<RatioParams> paramsReviews = new ArrayList<>();
+    private RatioParamsDTO review(String symbol, Map<LocalDateTime, MarketInterval> marketIntervalMap, Duration freshDuration) {
+        List<RatioParamsDTO> paramsReviews = new ArrayList<>();
         for (int minuteInterval = 3; minuteInterval <= allPricesCacheSize; minuteInterval++) {
             for (double deltaPercent = 3; deltaPercent <= 20; deltaPercent++) {
                 final LocalDateTime freshLimit = LocalDateTime.now().plus(freshDuration);
-                final RatioParams paramsReview = new RatioParams(symbol, minuteInterval, deltaPercent, freshLimit);
+                final RatioParamsDTO paramsReview = new RatioParamsDTO(symbol, minuteInterval, deltaPercent, freshLimit);
                 final Double resultMoney = singleCoinRatioReviewService.process(marketIntervalMap, paramsReview);
                 paramsReview.setResultPercent(resultMoney / START_MONEY * 100);
                 paramsReviews.add(paramsReview);
             }
         }
 
-        final RatioParams maxPercentRP = paramsReviews.stream()
-                .max(Comparator.comparing(RatioParams::getResultPercent)).orElse(null);
+        final RatioParamsDTO maxPercentRP = paramsReviews.stream()
+                .max(Comparator.comparing(RatioParamsDTO::getResultPercent)).orElse(null);
         if (maxPercentRP == null) {
             return null;
         }
-        final RatioParams minDeltaMinuteInterval = paramsReviews.stream()
+        final RatioParamsDTO minDeltaMinuteInterval = paramsReviews.stream()
                 .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
-                .min(Comparator.comparing(RatioParams::getDeltaMinuteInterval)).orElse(null);
+                .min(Comparator.comparing(RatioParamsDTO::getDeltaMinuteInterval)).orElse(null);
         if (minDeltaMinuteInterval == null) {
             return null;
         }
         return paramsReviews.stream()
                 .filter(pr -> maxPercentRP.getResultPercent().equals(pr.getResultPercent()))
                 .filter(pr -> minDeltaMinuteInterval.getDeltaMinuteInterval().equals(pr.getDeltaMinuteInterval()))
-                .min(Comparator.comparing(RatioParams::getDeltaPercent)).orElse(null);
+                .min(Comparator.comparing(RatioParamsDTO::getDeltaPercent)).orElse(null);
     }
 
     @Autowired

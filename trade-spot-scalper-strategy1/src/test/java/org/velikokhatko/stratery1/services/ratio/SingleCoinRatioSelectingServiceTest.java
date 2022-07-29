@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.velikokhatko.stratery1.BaseStrategy1Test;
-import com.velikokhatko.model.RatioParams;
+import velikokhatko.dto.RatioParamsDTO;
 
 import java.util.Optional;
 
@@ -15,7 +15,7 @@ class SingleCoinRatioSelectingServiceTest extends BaseStrategy1Test {
 
     @Test
     void selectRatio() throws InterruptedException {
-        Optional<RatioParams> ratioParams = service.selectRatio("BONDBNB");
+        Optional<RatioParamsDTO> ratioParams = service.selectRatio("BONDBNB");
         Assert.isTrue(ratioParams.isEmpty(), "Откуда-то появились нескачанные данные");
         Thread.sleep(60000);
         ratioParams = service.selectRatio("BONDBNB");

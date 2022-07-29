@@ -2,15 +2,15 @@ package org.velikokhatko.stratery1.services.api.exchange;
 
 import com.binance.api.client.domain.general.SymbolInfo;
 import com.binance.api.client.domain.general.SymbolStatus;
-import com.velikokhatko.model.SymbolInfoShort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.velikokhatko.stratery1.services.api.custom.domain.CoinInfo;
 import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
+import velikokhatko.dto.CoinInfoDTO;
+import velikokhatko.dto.SymbolInfoShortDTO;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +26,8 @@ import static org.velikokhatko.stratery1.utils.Utils.extractSymbolInfoShort;
 @Service
 public class ExchangeInfoService {
 
-    private final Map<String, SymbolInfoShort> symbolInfoShortCache = new ConcurrentHashMap<>();
-    private final Map<String, CoinInfo> coinInfoCache = new ConcurrentHashMap<>();
+    private final Map<String, SymbolInfoShortDTO> symbolInfoShortCache = new ConcurrentHashMap<>();
+    private final Map<String, CoinInfoDTO> coinInfoCache = new ConcurrentHashMap<>();
     private AbstractBinanceApiProvider apiProvider;
     private ExecutorService executorService;
     private String bridgeCoin;
@@ -53,7 +53,7 @@ public class ExchangeInfoService {
         return Optional.ofNullable(symbolInfoShortCache.get(symbol).getBaseAsset());
     }
 
-    public Map<String, SymbolInfoShort> getAllSymbolInfoShort() {
+    public Map<String, SymbolInfoShortDTO> getAllSymbolInfoShort() {
         if (symbolInfoShortCache.isEmpty()) {
             executorService.execute(this::warmUpCache);
             return Collections.emptyMap();

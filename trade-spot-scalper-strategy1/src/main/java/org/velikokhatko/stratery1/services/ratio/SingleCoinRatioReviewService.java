@@ -3,7 +3,7 @@ package org.velikokhatko.stratery1.services.ratio;
 import org.springframework.stereotype.Service;
 import org.velikokhatko.stratery1.services.ratio.model.Hold;
 import org.velikokhatko.stratery1.services.ratio.model.MarketInterval;
-import com.velikokhatko.model.RatioParams;
+import velikokhatko.dto.RatioParamsDTO;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
@@ -21,7 +21,7 @@ public class SingleCoinRatioReviewService {
     private static final double START_MONEY = 100d;
 
     public Double process(Map<LocalDateTime, MarketInterval> marketIntervals,
-                          RatioParams ratioParams) {
+                          RatioParamsDTO ratioParams) {
         double resultMoney = START_MONEY;
         Hold hold = null;
 
@@ -52,7 +52,7 @@ public class SingleCoinRatioReviewService {
         return resultMoney;
     }
 
-    private boolean profitableBuy(RatioParams ratioParams,
+    private boolean profitableBuy(RatioParamsDTO ratioParams,
                                   Hold hold,
                                   LocalDateTime currentLDT,
                                   Map<LocalDateTime, MarketInterval> marketIntervals) {
@@ -66,13 +66,13 @@ public class SingleCoinRatioReviewService {
         return isPriceFallingDeepEnough(ratioParams, marketIntervals.get(currentLDT).getOpen(), oldPrice);
     }
 
-    private Double getOldPrice(Map<LocalDateTime, MarketInterval> marketIntervals, RatioParams ratioParams, LocalDateTime currentLDT) {
+    private Double getOldPrice(Map<LocalDateTime, MarketInterval> marketIntervals, RatioParamsDTO ratioParams, LocalDateTime currentLDT) {
         LocalDateTime oldLDT = currentLDT.minusMinutes(ratioParams.getDeltaMinuteInterval());
         final MarketInterval marketInterval = marketIntervals.get(oldLDT);
         return marketInterval != null ? marketInterval.getOpen() : null;
     }
 
-    private boolean isPriceFallingDeepEnough(RatioParams ratioParams, double currentPrice, double oldPrice) {
+    private boolean isPriceFallingDeepEnough(RatioParamsDTO ratioParams, double currentPrice, double oldPrice) {
         return oldPrice > currentPrice
                 && 100d - (currentPrice / oldPrice) * 100 >= ratioParams.getDeltaPercent();
     }
