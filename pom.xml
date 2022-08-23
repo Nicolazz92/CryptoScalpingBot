@@ -15,7 +15,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>dto</module>
         <module>database-provider</module>
         <module>binance-api-client</module>
         <module>trade-spot-scalper-strategy1</module>

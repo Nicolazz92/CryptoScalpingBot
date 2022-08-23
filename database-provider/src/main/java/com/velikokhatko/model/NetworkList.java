@@ -1,15 +1,18 @@
-package velikokhatko.dto;
+package com.velikokhatko.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Entity;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NetworkListDTO {
+@Entity
+public class NetworkList extends BaseEntity{
     private String network;
     private String coin;
     private String withdrawIntegerMultiple;

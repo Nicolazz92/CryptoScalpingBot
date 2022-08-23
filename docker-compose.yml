@@ -10,10 +10,12 @@ services:
       - database
 
   database:
-    image: 'postgres:14'
+    image: 'mysql:latest'
+    restart: always
     ports:
-      - 5432:5432
+      - 3306:3306
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: csb_strat_1
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: csb_strat_1
