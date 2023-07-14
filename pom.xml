@@ -20,7 +20,7 @@
     </modules>
 
     <properties>
-        <java.version>14</java.version>
+        <java.version>17</java.version>
         <binance-api-client.version>1.0.1</binance-api-client.version>
         <jsoup.version>1.14.1</jsoup.version>
     </properties>
