@@ -17,6 +17,7 @@
     <modules>
         <module>binance-api-client</module>
         <module>trade-spot-scalper-strategy1</module>
+        <module>trade-spot-period-investment</module>
     </modules>
 
     <properties>
