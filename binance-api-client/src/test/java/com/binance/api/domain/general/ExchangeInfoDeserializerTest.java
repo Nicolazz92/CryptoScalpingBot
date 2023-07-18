@@ -86,7 +86,7 @@ public class ExchangeInfoDeserializerTest {
       assertEquals(symbolInfo.getQuoteAsset(), "BTC");
       assertEquals((int) symbolInfo.getQuotePrecision(), 8);
       assertEquals(symbolInfo.getOrderTypes(), Arrays.asList(OrderType.LIMIT, OrderType.MARKET));
-      assertFalse(symbolInfo.isIcebergAllowed());
+      assertFalse(symbolInfo.icebergAllowed);
 
       List<SymbolFilter> symbolFilters = symbolInfo.getFilters();
       assertEquals(symbolFilters.size(), 3);

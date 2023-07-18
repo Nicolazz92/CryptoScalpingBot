@@ -1,4 +1,4 @@
-package org.velikokhatko.stratery1.services.api.exchange;
+package org.velikokhatko.period_invesment.services.api.exchange;
 
 import com.binance.api.client.domain.general.SymbolInfo;
 import com.binance.api.client.domain.general.SymbolStatus;
@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.velikokhatko.stratery1.services.api.custom.domain.CoinInfo;
-import org.velikokhatko.stratery1.services.api.provider.AbstractBinanceApiProvider;
+import org.velikokhatko.period_invesment.services.api.custom.domain.CoinInfo;
+import org.velikokhatko.period_invesment.services.api.provider.AbstractBinanceApiProvider;
 
 import java.util.Collections;
 import java.util.List;

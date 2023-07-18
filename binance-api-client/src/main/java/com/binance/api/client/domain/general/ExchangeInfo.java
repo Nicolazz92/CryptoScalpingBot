@@ -3,6 +3,7 @@ package com.binance.api.client.domain.general;
 import com.binance.api.client.constant.BinanceApiConstants;
 import com.binance.api.client.exception.BinanceApiException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
 public class ExchangeInfo {
 
     private String timezone;
@@ -20,41 +22,9 @@ public class ExchangeInfo {
 
     private List<RateLimit> rateLimits;
 
-    // private List<String> exchangeFilters;
+    private List<String> exchangeFilters;
 
     private List<SymbolInfo> symbols;
-
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
-    }
-
-    public Long getServerTime() {
-        return serverTime;
-    }
-
-    public void setServerTime(Long serverTime) {
-        this.serverTime = serverTime;
-    }
-
-    public List<RateLimit> getRateLimits() {
-        return rateLimits;
-    }
-
-    public void setRateLimits(List<RateLimit> rateLimits) {
-        this.rateLimits = rateLimits;
-    }
-
-    public List<SymbolInfo> getSymbols() {
-        return symbols;
-    }
-
-    public void setSymbols(List<SymbolInfo> symbols) {
-        this.symbols = symbols;
-    }
 
     /**
      * @param symbol the symbol to obtain information for (e.g. ETHBTC)

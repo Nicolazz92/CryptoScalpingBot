@@ -3,145 +3,39 @@ package com.binance.api.client.domain.general;
 import com.binance.api.client.constant.BinanceApiConstants;
 import com.binance.api.client.domain.OrderType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Symbol information (base/quote).
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
 public class SymbolInfo {
 
-    private String symbol;
-
-    private SymbolStatus status;
-
-    private String baseAsset;
-
-    private Integer baseAssetPrecision;
-
-    private String quoteAsset;
-
-    private Integer quotePrecision;
+    public String symbol;
+    public SymbolStatus status;
+    public String baseAsset;
+    public Integer baseAssetPrecision;
+    public String quoteAsset;
+    public Integer quotePrecision;
+    public Integer quoteAssetPrecision;
+    public Boolean icebergAllowed;
+    public Boolean ocoAllowed;
+    public Boolean quoteOrderQtyMarketAllowed;
+    public Boolean allowTrailingStop;
+    public Boolean cancelReplaceAllowed;
+    public Boolean isSpotTradingAllowed;
+    public Boolean isMarginTradingAllowed;
+    public ArrayList<String> permissions;
+    public String defaultSelfTradePreventionMode;
+    public ArrayList<String> allowedSelfTradePreventionModes;
 
     private List<OrderType> orderTypes;
-
-    private boolean icebergAllowed;
-
-    private boolean ocoAllowed;
-
-    private boolean quoteOrderQtyMarketAllowed;
-
-    private boolean isSpotTradingAllowed;
-
-    private boolean isMarginTradingAllowed;
-
     private List<SymbolFilter> filters;
-
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public SymbolStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SymbolStatus status) {
-        this.status = status;
-    }
-
-    public String getBaseAsset() {
-        return baseAsset;
-    }
-
-    public void setBaseAsset(String baseAsset) {
-        this.baseAsset = baseAsset;
-    }
-
-    public Integer getBaseAssetPrecision() {
-        return baseAssetPrecision;
-    }
-
-    public void setBaseAssetPrecision(Integer baseAssetPrecision) {
-        this.baseAssetPrecision = baseAssetPrecision;
-    }
-
-    public String getQuoteAsset() {
-        return quoteAsset;
-    }
-
-    public void setQuoteAsset(String quoteAsset) {
-        this.quoteAsset = quoteAsset;
-    }
-
-    public Integer getQuotePrecision() {
-        return quotePrecision;
-    }
-
-    public void setQuotePrecision(Integer quotePrecision) {
-        this.quotePrecision = quotePrecision;
-    }
-
-    public List<OrderType> getOrderTypes() {
-        return orderTypes;
-    }
-
-    public void setOrderTypes(List<OrderType> orderTypes) {
-        this.orderTypes = orderTypes;
-    }
-
-    public boolean isIcebergAllowed() {
-        return icebergAllowed;
-    }
-
-    public void setIcebergAllowed(boolean icebergAllowed) {
-        this.icebergAllowed = icebergAllowed;
-    }
-
-    public boolean isOcoAllowed() {
-        return ocoAllowed;
-    }
-
-    public void setOcoAllowed(boolean ocoAllowed) {
-        this.ocoAllowed = ocoAllowed;
-    }
-
-    public boolean isQuoteOrderQtyMarketAllowed() {
-        return quoteOrderQtyMarketAllowed;
-    }
-
-    public void setQuoteOrderQtyMarketAllowed(boolean quoteOrderQtyMarketAllowed) {
-        this.quoteOrderQtyMarketAllowed = quoteOrderQtyMarketAllowed;
-    }
-
-    public boolean isSpotTradingAllowed() {
-        return isSpotTradingAllowed;
-    }
-
-    public void setIsSpotTradingAllowed(boolean isSpotTradingAllowed) {
-        this.isSpotTradingAllowed = isSpotTradingAllowed;
-    }
-
-    public boolean isMarginTradingAllowed() {
-        return isMarginTradingAllowed;
-    }
-
-    public void setIsMarginTradingAllowed(boolean isMarginTradingAllowed) {
-        this.isMarginTradingAllowed = isMarginTradingAllowed;
-    }
-
-    public List<SymbolFilter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<SymbolFilter> filters) {
-        this.filters = filters;
-    }
 
     /**
      * @param filterType filter type to filter for.
